@@ -55,7 +55,7 @@ function makelibconfig(argv)
 		plugins:
 			[
 
-				isDevelopment ? new NothingPlugin() : new CleanWebpackPlugin()
+			//	isDevelopment ? new NothingPlugin() : new CleanWebpackPlugin()
 			],
 	}
 
@@ -73,6 +73,17 @@ function makehtmlconfig(argv)
 	console.log("htmlfiles", htmlfiles);
 	console.log("entry", entryfiles);
 
+	function scripttag(src)
+	{
+		return src? `<script src="${src}"></script>` : "";
+	}
+
+	const rgConstants = [
+		["URL_D3_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"]
+	].reduce((o,e) => ({...o, [e[0]]: JSON.stringify(scripttag(isDevelopment?e[1]:e[2]))  }), {});
+
+	console.log("rgConstants", rgConstants);
+
 	const config =
 	{
 		...comm,
@@ -82,12 +93,16 @@ function makehtmlconfig(argv)
 		},
 		plugins:
 			[
+				new webpack.DefinePlugin(rgConstants),
+
 				...htmlfiles.map(page => new HtmlWebpackPlugin({
 					template: page,
 					filename: page.replace("src/", ""),
 					hash: true,
 					inject: true,
-					chunks: [page.replace("src/", "").replace(".html", "")]
+					chunks: [page.replace("src/", "").replace(".html", "")],
+
+					
 
 				})),
 				new MiniCssExtractPlugin({
@@ -121,7 +136,8 @@ function makecommonconfig(argv)
 				commonjs2: 'lodash',
 				amd: 'lodash',
 				root: '_',
-			}
+			},
+			...(isDevelopment? {}: {"d3":"d3"} )
 		},
 		devServer: {
 			port: 3333,
@@ -129,7 +145,8 @@ function makecommonconfig(argv)
 		resolve: {
 			extensions: ['.js', '.scss'],
 			alias: {
-				seedrandom: "seedrandom/seedrandom.min.js"
+				seedrandom: "seedrandom/seedrandom.min.js",
+				//d3:"d3/dist/d3.min.js"
 			}
 		},
 		module: {
@@ -137,15 +154,6 @@ function makecommonconfig(argv)
 				{
 					test: /\.pug$/,
 					use: ["pug-loader"]
-				},
-				{
-					test: /\.html$/,
-					use: [{
-						loader: 'html-loader',
-						options: {
-							minimize: true
-						}
-					}],
 				},
 				{
 					test: /\.(js)$/,

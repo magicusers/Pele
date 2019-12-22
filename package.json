@@ -6,7 +6,8 @@
 	"scripts": {
 		"build": "webpack --mode=production",
 		"build:dev": "webpack --mode=development ",
-		"build:watch": "webpack --watch --mode=development "
+		"build:watch": "webpack --watch --mode=development ",
+		"start": "webpack-dev-server --mode=development"
 	},
 	"author": "Arun Sagar",
 	"license": "MIT",
@@ -32,6 +33,7 @@
 	},
 	"dependencies": {
 		"@babel/runtime": "^7.7.7",
+		"d3": "^5.14.2",
 		"express": "^4.17.1",
 		"file-loader": "^5.0.2",
 		"nodemon": "^2.0.2",
