@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-
+import * as _ from 'lodash';
 
 const output = d3.select("#output");
 
@@ -59,6 +59,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 				);
 
 
+				this.updateDisplay = _.debounce(() => {this.updateDisplayActual()}, 50, {leading:true,trailing:true} );
 			}
 
 			onChange()
@@ -95,7 +96,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 				this.updateDisplay();
 			}
 
-			updateDisplay()
+			updateDisplayActual()
 			{
 				const data = this.get();
 
@@ -108,12 +109,12 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 					.join(
 						enter => enter.append("div")
 							.style("background-color", d => d.color)
-							.style("width", d => fShowLinear ? (100 * d.size / maxval) + "%" : "100%")
+							.style("width", d => (fShowLinear ? (100 * d.size / maxval):(100 * Math.log(d.size) / Math.log(maxval))) + "%")
 							.text(d => d.category)
 						, update => update.transition()
 							.text(d => d.category)
 							.style("background-color", d => d.color)
-							.style("width", d => fShowLinear ? (100 * d.size / maxval) + "%" : "100%")
+							.style("width", d => (fShowLinear ? (100 * d.size / maxval):(100 * Math.log(d.size) / Math.log(maxval))) + "%")
 						, exit => exit.transition().remove()
 
 					)
