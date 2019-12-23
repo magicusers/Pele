@@ -68,7 +68,7 @@ export class TableEditor
 
 	onChange(cell)
 	{
-		console.debug("change", cell);
+		//console.debug("change", cell);
 		this.DoChange(cell);
 	}
 

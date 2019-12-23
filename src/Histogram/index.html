@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Table Edit</title>
+
+	<%= URL_D3_LIBRARY %>
+
+	<style>
+		body,
+		html {
+			margin: 0;
+			height: 100%;
+			width: 100%;
+		}
+
+		html {
+			font-family: Arial, Helvetica, sans-serif;
+		}
+
+		table {
+			text-align: left;
+			width: 100%;
+			border-spacing: 0;
+		}
+
+		table th,
+		table td {
+			padding: 0.5em 0.5em 0.5em 0;
+		}
+
+		table input:not([type="checkbox"]):not([type="radio"]),
+		table textarea {
+			border: 0;
+			display: block;
+			resize: none;
+			font: inherit;
+			padding: 0;
+			margin: 0;
+			outline: none;
+			width: 100%;
+			background: transparent;
+		}
+
+		table tbody td {
+			cursor: text;
+		}
+
+		table tbody tr:last-child [data-remove] {
+			visibility: hidden;
+		}
+
+		table tr.active {
+			background: #ffc;
+		}
+	</style>
+
+	<style>
+		.flex_equispaced_vertical_stack {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.flex_equispaced_vertical_stack>* {
+			flex: 1;
+		}
+
+	</style>
+
+</head>
+
+<body class="flex_equispaced_vertical_stack">
+	<script src="../table-editor.js"></script>
+	<script src="//localhost:3000/atheos/afrodite.js"></script>
+	<link rel="stylesheet" href="//localhost:3000/atheos/afrodite.css">
+	<style>
+		.Aφρός_Αφροδίτη_window_BannerPane {
+			top: 0;
+			opacity: 66%;
+		}
+	</style>
+
+	<style>
+		#tableContainer {
+			position: relative;
+			border: red thin solid;
+		}
+
+		#output {
+			width: 100%;
+			background-color: grey;
+		}
+
+		#output div {
+			font: sans-serif;
+			/*padding: 3px;*/
+			margin: 1px 0;
+			color: white;
+
+			display: flex;
+			justify-content: center;
+			flex-direction: column;
+		}
+	</style>
+
+	<div id="output" class="flex_equispaced_vertical_stack">
+	</div>
+
+	<table id="cooltable">
+		<thead>
+			<tr>
+				<th>Category</th>
+				<th>Size</th>
+				<th colspan="99">Color</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+					<input name="category" placeholder="nom" type="text" autocomplete="off" />
+				</td>
+				<td>
+					<input name="size" placeholder="0" type="number" autocomplete="off" />
+				</td>
+				<td>
+					<input name="color" type="color" required="required" autocomplete="off" />
+				</td>
+				<td>
+					<span data-remove>×</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+
+
+	<script>
+
+
+	</script>
+
+</body>
+
+</html>
