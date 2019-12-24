@@ -15,6 +15,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 
 	OnInit()
 	{
+		let idForOutput=0;
 
 		class MyTable extends Pele.TableEditor
 		{
@@ -35,6 +36,11 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 				this.patched_deleteRow = gameserver.Patch(function ()
 				{
 					this.original_deleteRow(...arguments);
+				}.bind(this));
+
+				this.patched_moveRow = gameserver.Patch(function ()
+				{
+					this.original_moveRow(...arguments);
 				}.bind(this));
 
 				this.fShowLinear = true;
@@ -79,6 +85,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 					this.patched_addRow(...arguments);
 			}
 
+
 			original_addRow()
 			{
 				super.addRow(...arguments);
@@ -96,8 +103,26 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 				this.updateDisplay();
 			}
 
+			moveRow()
+			{
+				if (this.patched_moveRow)
+					this.patched_moveRow(...arguments);
+			}
+
+			original_moveRow()
+			{
+				super.moveRow(...arguments);
+				this.updateDisplay();
+			}
+
 			updateDisplayActual()
 			{
+				const patched_click = gameserver.Patch(function (id){
+					output.selectAll("[data-uniqueid]").classed("selected_for_highlight",false);
+					output.selectAll("[data-uniqueid='"+id + "']")
+						.classed("selected_for_highlight",true);
+				});
+
 				const data = this.get();
 
 				const maxval = data.reduce((max, v) => Math.max(v.size, max), 0);
@@ -111,6 +136,11 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 							.style("background-color", d => d.color)
 							.style("width", d => (fShowLinear ? (100 * d.size / maxval):(100 * Math.log(d.size) / Math.log(maxval))) + "%")
 							.text(d => d.category)
+							.attr("data-uniqueid", ()=> ++idForOutput)
+							.on('click', function(event){
+								patched_click(d3.select(this).attr("data-uniqueid"));
+								d3.event.stopPropagation();
+							})
 						, update => update.transition()
 							.text(d => d.category)
 							.style("background-color", d => d.color)

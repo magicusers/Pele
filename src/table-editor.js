@@ -4,16 +4,18 @@ export class TableEditor
 	{
 		console.debug(options);
 
-		const eTable = document.getElementById(options.ID);
+		this.eTable = document.getElementById(options.ID);
 
-		this.$body = eTable.querySelector("tbody");
-		this.$template = this.$body.querySelector("tr:last-child").cloneNode(true);
+		this.$body = this.eTable.querySelector("tbody");
+		const rowtemplate = this.$body.querySelector("tr:last-child");
+		this.$template = rowtemplate.cloneNode(true);
 		this.$lastRemoveRow = undefined;
 
 		this.defaultValues = serializeRow(this.$template);
 		this.recordsCount = 0;
 
 		connectedCallback.call(this);
+		setupDragHandlers.call(this, rowtemplate);
 	}
 
 	get()
@@ -21,49 +23,6 @@ export class TableEditor
 		return Array.prototype.slice
 			.call(this.$body.children, 0, -1)
 			.map(serializeRow);
-	}
-
-	add(records, options = {})
-	{
-		options.at =
-			typeof options.at !== "undefined"
-				? options.at
-				: this.$body.children.length - 1;
-
-		if (!Array.isArray(records))
-		{
-			this.addRow(records, options);
-			return;
-		}
-
-		for (const record of records)
-		{
-			this.addRow(record, options);
-			options.at++;
-		}
-	}
-	update(changedProperties = {}, options = {})
-	{
-		if (typeof options.at !== "number") return;
-
-		const $row = this.$body.children[options.at];
-		if (!$row) return;
-
-		for (const [name, value] of Object.entries(changedProperties))
-		{
-			$row.querySelector(`[name="${name}"]`).value = value;
-		}
-	}
-	remove(options = {})
-	{
-		if (typeof options.at !== "number") return;
-		const $row = this.$body.children[options.at];
-		if (!$row) return;
-
-		const record = serializeRow($row);
-		this.$body.removeChild($row);
-		this.recordsCount--;
-
 	}
 
 	onChange(cell)
@@ -90,6 +49,15 @@ export class TableEditor
 			this.handleInput(event);
 			return;
 		}
+	}
+
+	moveRow(from, to)
+	{
+		const eFrom = this.$body.children[from];
+		const eTo = this.$body.children[to];
+
+		if (eFrom && eTo)
+			this.$body.insertBefore(eFrom, eTo);
 	}
 
 	getCellData(target)
@@ -132,6 +100,7 @@ export class TableEditor
 	}
 
 
+
 	/**
 	 * add a new row when focus is set in the last one. That makes
 	 * the table grow automatically, no need for extra buttons.
@@ -140,41 +109,19 @@ export class TableEditor
 	 * @param {object} record
 	 * @param {object} options
 	 */
-	addRow(record, options)
+	addRow()
 	{
 		const $row = this.$template.cloneNode(true);
 
-		if (!record)
-		{
-			const $lastRow = this.$body.querySelector("tr:last-child");
 
-			if (isEmptyRow(this, $lastRow))
-				return $lastRow;
-			else
-				return this.$body.appendChild($row);
-		}
+		const $lastRow = this.$body.querySelector("tr:last-child");
 
-		for (const input of $row.querySelectorAll("[name]"))
-		{
-			input.value = record[input.name];
-		}
+		if (isEmptyRow(this, $lastRow))
+			return $lastRow;
 
-		let index = options && options.at;
+		setupDragHandlers.call(this, $row);
 
-		if (typeof index !== "number")
-		{
-			this.$body.insertBefore($row, this.$body.lastChild);
-			this.recordsCount++;
-			return;
-		}
-
-		if (index > this.recordsCount)
-		{
-			index = this.recordsCount;
-		}
-
-		this.$body.insertBefore($row, this.$body.children[index]);
-		this.recordsCount++;
+		return this.$body.appendChild($row);
 	}
 
 	deleteRow(index)
@@ -187,6 +134,94 @@ export class TableEditor
 		removeEmptyRows(this);
 	}
 };
+
+function rowIndex(row)
+{
+	return [...row.parentNode.children].indexOf(row);
+}
+
+function setupDragHandlers(row)
+{
+	const self = this;
+	const DRAGON_DROP_MIME_TYPE = "application/x-pele-move-row";
+	if (row.getAttribute("draggable"))
+	{
+		const eTable = this.eTable;
+
+		row.addEventListener("dragstart", function (event)
+		{
+			//console.debug("dragstart", event.target);
+			
+			if (isEmptyRow(self, row))
+				event.preventDefault();
+			else
+			{
+				eTable.classList.add("pele_dragover");
+				event.dataTransfer.effectAllowed="move";
+				event.dataTransfer.setData(DRAGON_DROP_MIME_TYPE, rowIndex(row));
+			}
+		});
+
+		row.addEventListener("dragover", function (event)
+		{
+			if (event.dataTransfer.types.includes(DRAGON_DROP_MIME_TYPE))
+			{
+				row.classList.add("pele_dragover");
+				event.preventDefault();
+			}
+		});
+		row.addEventListener("dragenter", function (event)
+		{
+			//row.classList.add("pele_dragover");
+			//event.preventDefault();
+		});
+		row.addEventListener("dragleave", function (event)
+		{
+			row.classList.remove("pele_dragover");
+			//event.preventDefault();
+		});
+
+		/*
+		const input = row.querySelector("input").addEventListener("drop", function (event)
+		{
+			console.debug("input drop", event);
+			const data = event.dataTransfer.getData("text/uri-list");
+			if (data !== undefined)
+			{
+				console.debug("url", data);
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		});
+		*/
+
+		row.addEventListener("drop", function (event)
+		{
+			row.classList.remove("pele_dragover");
+			eTable.classList.remove("pele_dragover");
+
+			const originalrow = event.dataTransfer.getData(DRAGON_DROP_MIME_TYPE);
+			if (originalrow !== undefined)
+			{
+				const row_index = rowIndex(row);
+				if (originalrow != row_index)
+				{
+					console.debug("move successufl", originalrow, row_index);
+					self.moveRow(originalrow, row_index);
+				}
+				event.preventDefault();
+			}
+		});
+
+		row.addEventListener("dragend", function (event)
+		{
+			eTable.classList.remove("pele_dragover");
+			event.preventDefault();
+		});
+
+	}
+
+}
 
 function connectedCallback()
 {

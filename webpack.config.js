@@ -79,7 +79,8 @@ function makehtmlconfig(argv)
 	}
 
 	const rgConstants = [
-		["URL_D3_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"]
+		["URL_D3_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"],
+		["URL_LODASH_LIBRARY", null, "https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"]
 	].reduce((o,e) => ({...o, [e[0]]: JSON.stringify(scripttag(isDevelopment?e[1]:e[2]))  }), {});
 
 	console.log("rgConstants", rgConstants);
@@ -131,13 +132,17 @@ function makecommonconfig(argv)
 			minimize: !isDevelopment
 		},
 		externals: {
-			"lodash": {
-				commonjs: 'lodash',
-				commonjs2: 'lodash',
-				amd: 'lodash',
-				root: '_',
-			},
-			...(isDevelopment? {}: {"d3":"d3"} )
+			...(isDevelopment? {}: 
+				{
+					"d3":"d3",
+					"lodash": {
+						commonjs: 'lodash',
+						commonjs2: 'lodash',
+						amd: 'lodash',
+						root: '_',
+					},
+
+				} )
 		},
 		devServer: {
 			port: 3333,
