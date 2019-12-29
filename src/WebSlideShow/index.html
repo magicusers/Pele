@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Web Slide Show</title>
+
+	<%= URL_LODASH_LIBRARY %>
+
+</head>
+
+<body>
+	<script src="../square-slides.js"></script>
+	<script src="//localhost:3000/atheos/afrodite.js"></script>
+	<link rel="stylesheet" href="//localhost:3000/atheos/afrodite.css">
+	<style>
+		.Aφρός_Αφροδίτη_window_BannerPane {
+			top: 0;
+			opacity: 66%;
+		}
+	</style>
+
+	<header>
+		<button onclick="DoPrevious()">Previous</button>
+		<button onclick="DoSome()">Do Some</button>
+		<button onclick="DoDelete()">Delete</button>
+		<button onclick="DoNext()">Next</button>
+	</header>
+
+	<main id="coolslides"></main>
+
+</body>
+
+</html>

@@ -46,7 +46,7 @@ function makelibconfig(argv)
 		entry: libentryfiles,
 		output: {
 			path: path.resolve(__dirname, "dist"),
-			//filename: "[name].js",
+			filename: "[name].js",
 			libraryTarget: "umd",
 			library: "Pele",
 			publicPath: "/"

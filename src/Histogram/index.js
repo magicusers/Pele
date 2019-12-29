@@ -64,6 +64,25 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 				}.bind(this))
 				);
 
+				myself.addEventListener("drop", function (event)
+				{
+					console.debug("input drop", event);
+					const data = event.dataTransfer.getData("text/uri-list");
+					if (data !== undefined)
+					{
+						console.debug("url", data);
+						
+						if(event.target.getAttribute("name") == "category")
+						{
+							event.target.value = data;
+							event.target.dispatchEvent(new Event("change"));
+						}
+
+						event.preventDefault();
+						event.stopPropagation();
+					}
+				});
+
 
 				this.updateDisplay = _.debounce(() => {this.updateDisplayActual()}, 50, {leading:true,trailing:true} );
 			}

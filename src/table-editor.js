@@ -181,19 +181,6 @@ function setupDragHandlers(row)
 			//event.preventDefault();
 		});
 
-		/*
-		const input = row.querySelector("input").addEventListener("drop", function (event)
-		{
-			console.debug("input drop", event);
-			const data = event.dataTransfer.getData("text/uri-list");
-			if (data !== undefined)
-			{
-				console.debug("url", data);
-				event.preventDefault();
-				event.stopPropagation();
-			}
-		});
-		*/
 
 		row.addEventListener("drop", function (event)
 		{
