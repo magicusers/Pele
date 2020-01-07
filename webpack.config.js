@@ -54,7 +54,7 @@ function makelibconfig(argv)
 		},
 		plugins:
 			[
-
+				  
 			//	isDevelopment ? new NothingPlugin() : new CleanWebpackPlugin()
 			],
 	}
@@ -80,7 +80,8 @@ function makehtmlconfig(argv)
 
 	const rgConstants = [
 		["URL_D3_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"],
-		["URL_LODASH_LIBRARY", null, "https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"]
+		["URL_LODASH_LIBRARY", null, "https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"],
+		["URL_MUURI_LIBRARY", null, "https://unpkg.com/muuri@0.8.0/dist/muuri.min.js"],
 	].reduce((o,e) => ({...o, [e[0]]: JSON.stringify(scripttag(isDevelopment?e[1]:e[2]))  }), {});
 
 	console.log("rgConstants", rgConstants);
@@ -131,10 +132,13 @@ function makecommonconfig(argv)
 		{
 			minimize: !isDevelopment
 		},
+		devtool: isDevelopment? 'source-map':false
+		,
 		externals: {
 			...(isDevelopment? {}: 
 				{
 					"d3":"d3",
+					"muuri":"muuri",
 					"lodash": {
 						commonjs: 'lodash',
 						commonjs2: 'lodash',
@@ -177,6 +181,13 @@ function makecommonconfig(argv)
 							}
 						},
 						{
+							loader:"postcss-loader",
+							options:{
+								sourceMap:isDevelopment
+							}
+
+						},
+						{
 							loader: 'sass-loader',
 							options: {
 								sourceMap: isDevelopment
@@ -194,6 +205,13 @@ function makecommonconfig(argv)
 							options: {
 								sourceMap: isDevelopment
 							}
+						},
+						{
+							loader:"postcss-loader",
+							options:{
+								sourceMap:isDevelopment
+							}
+
 						},
 						{
 							loader: 'sass-loader',

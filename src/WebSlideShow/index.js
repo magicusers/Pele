@@ -87,28 +87,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 			}
 		});
 
-		function RecomputeDimensions()
-		{
-			const slidecount = pfs.eList.children.length;
 
-			const r = pfs.eList.getBoundingClientRect();
-
-			const numRows = Math.ceil(Math.sqrt(slidecount* r.height/r.width));
-
-			const numCol = Math.ceil(numRows* r.width/r.height);
-
-			Array.from(pfs.eList.children).forEach(e=>{
-				e.setAttribute("data-pele-square-size-column-count", numCol);
-			});
-		}
-		
-		const observer = new MutationObserver(mutations => {
-			console.debug(mutations);
-			RecomputeDimensions();
-		});
-		observer.observe(pfs.eList, {attributes:false, childList:true, characterData:false});
-
-		window.addEventListener("resize", RecomputeDimensions);
 	}
 }
 window.gameserver = new GameControl();

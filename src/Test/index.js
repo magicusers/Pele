@@ -1,5 +1,5 @@
 import { TableEditor } from "../table-editor";
-import { Square } from "../square-slides";
+import  "../square-slides";
 
 const te = new TableEditor({
 	ID: "cooltable"

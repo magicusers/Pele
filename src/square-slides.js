@@ -1,4 +1,5 @@
 import { set } from "d3";
+import {KookData} from "./BatMan/KookData";
 
 const KONST =
 {
@@ -9,55 +10,6 @@ const KONST =
 	, pele_dragover: "pele_dragover"
 	, DRAGON_DROP_MIME_TYPE: "application/x-pele-move-slideshow"
 };
-
-function KookData(txt)
-{
-	let datatype;
-	let cooked = txt;
-	try
-	{
-		const doc = new DOMParser().parseFromString(txt, "text/html");
-		const e = doc.body.firstElementChild;
-		if (e)
-		{
-			const tag = e.tagName.toLowerCase();
-			switch (tag)
-			{
-				case "img":
-				case "iframe":
-					cooked = e.getAttribute("src");
-					datatype = tag;
-					break;
-
-				case "a":
-					cooked = e.getAttribute("href");
-					datatype = "iframe";
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		if (!datatype)
-		{
-			const url = new URL(txt);
-			const fileprefix = txt.split('#').shift().split('?').shift().split('/').pop().split(".").pop();
-
-			if (fileprefix && "jpg.jpeg.png.svg.gif.bmp.ico".indexOf(fileprefix.toLowerCase()) >= 0)
-				datatype = "img";
-			else
-				datatype = "iframe";
-		}
-	}
-	catch
-	{
-		datatype = null;
-	}
-
-	return [datatype, cooked];
-
-}
 
 export class SquareSlides
 {
@@ -91,6 +43,29 @@ export class SquareSlides
 			}
 		});
 
+
+		function RecomputeDimensions()
+		{
+			const slidecount = this.eList.children.length;
+
+			const r = this.eList.getBoundingClientRect();
+
+			const numRows = Math.ceil(Math.sqrt(slidecount* r.height/r.width));
+
+			const numCol = Math.ceil(numRows* r.width/r.height);
+
+			Array.from(this.eList.children).forEach(e=>{
+				e.setAttribute("data-pele-square-size-column-count", numCol);
+			});
+		}
+		
+		const observer = new MutationObserver(mutations => {
+			console.debug(mutations);
+			RecomputeDimensions.call(this);
+		});
+		observer.observe(this.eList, {attributes:false, childList:true, characterData:false});
+
+		window.addEventListener("resize", RecomputeDimensions.bind(this));		
 	}
 
 
@@ -396,3 +371,4 @@ function gosmallscreen(e)
 		e.classList.remove(KONST.fullscreen);
 	}
 }
+
