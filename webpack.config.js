@@ -150,6 +150,7 @@ function makecommonconfig(argv)
 		},
 		devServer: {
 			port: 3333,
+			host:'0.0.0.0'
 		},
 		resolve: {
 			extensions: ['.js', '.scss'],

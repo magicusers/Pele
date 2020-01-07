@@ -139,7 +139,7 @@ export class MuuriSlideShow
 		const eItem = elementClosest(e.target, ".item");
 		if (eItem && !this.IsInZoomMode())
 		{
-			this.DoChooseSlide(eItem);
+			this.DoSelect(getDataId(eItem));
 		}
 		else
 		{
@@ -165,6 +165,11 @@ export class MuuriSlideShow
 		this.Action("DoDelete", ...arguments);
 	}
 
+	DoSelect()
+	{
+		this.Action("DoSelect", ...arguments);
+	}
+
 	Action(cmd, ...args)
 	{
 		function doAdd(txt)
@@ -172,9 +177,9 @@ export class MuuriSlideShow
 			this.DoAddText(txt);
 		}
 
-		function doDelete(index, envelope)
+		function doDelete(id, envelope)
 		{
-			const e = index ? this.grid.getItems(index)[0] : this.findChosenItem();
+			const e = this.ItemFromId(id) || this.findChosenItem();
 
 			removeItem.call(this, e, envelope);
 		}
@@ -185,15 +190,21 @@ export class MuuriSlideShow
 			if (action === "move")
 			{
 				const e = this.ItemFromId(id);
-				const currentIndex = this.ElementIndex(e);
-				if (to === currentIndex)
-					console.debug("Element in place");
-				else
-				{
-					console.debug("move", currentIndex, ">", to);
-					this.grid.move(e, to, false);
-				}
+				console.debug("move", from, ">", to);
+				this.grid.move(e, to, false);
 			}
+		}
+
+		function doSelect(id)
+		{
+			const e = this.ItemFromId(id).getElement();
+			doChooseSlide.call(this,  e);
+		}
+
+		function doZoom(id)
+		{
+			const e = this.ItemFromId(id).getElement();
+			doZoomSlide.call(this, e);
 		}
 
 		switch (cmd)
@@ -201,14 +212,8 @@ export class MuuriSlideShow
 			case "DoAdd": doAdd.apply(this, args); break;
 			case "DoDelete": doDelete.apply(this, args); break;
 			case "DoMove": doMove.apply(this, args); break;
-
-			case "DoNext": doNext.apply(this, args); break;
-			case "DoPrevious": doPrevious.apply(this, args); break;
-			case "DoSome": doSome.apply(this, args); break;
-
-			case "DoSelect": doSelectIndex.apply(this, args); break;
-			case "DoFullScreen": doFullScreenIndex.apply(this, args); break;
-			case "DoSmallScreen": doSmallScreenIndex.apply(this, args); break;
+			case "DoSelect": doSelect.apply(this, args); break;
+			case "ToggleZoom": doZoom.apply(this, args); break;
 		}
 	}
 
@@ -220,7 +225,7 @@ export class MuuriSlideShow
 
 	RemoveItem(e)
 	{
-		this.DoDelete(this.ElementIndex(elementClosest(e, '.item')));
+		this.DoDelete(getDataId(elementClosest(e, '.item')));
 	}
 
 	CreateDragShadow(item)
@@ -262,8 +267,10 @@ export class MuuriSlideShow
 
 	ToggleZoom()
 	{
-		doZoomSlide.call(this, this.findChosenOne());
+		this.Action("ToggleZoom", getDataId(this.findChosenOne()));
+		
 	}
+
 	SlideUnzoom()
 	{
 		if (this.IsInZoomMode())
@@ -289,20 +296,10 @@ export class MuuriSlideShow
 					eNext = this.grid.getItems(0);
 			}
 
-			this.DoChooseSlide(eNext[0].getElement());
+			this.DoSelect(getDataId(eNext[0].getElement()));
 		}
 	}
 
-	DoChooseSlide(e)
-	{
-		console.debug("DoChooseSlide", e);
-		if (e)
-		{
-			this.unchooseSlide(this.findChosenOne());
-			this.chooseSlide(e);
-			this.ShowHideBasedOnZoomin();
-		}
-	}
 
 
 	ShowHideBasedOnZoomin()
@@ -452,6 +449,16 @@ function recomputedimensions()
 }
 
 
+function doChooseSlide(e)
+{
+	console.debug("doChooseSlide", e);
+	if (e)
+	{
+		this.unchooseSlide(this.findChosenOne());
+		this.chooseSlide(e);
+		this.ShowHideBasedOnZoomin();
+	}
+}
 
 
 function unzoomSlide()
