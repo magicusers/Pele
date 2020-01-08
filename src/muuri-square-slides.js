@@ -1,6 +1,8 @@
 import * as _ from 'lodash';
 import * as Muuri from 'muuri';
 import { elementClosest } from './BatMan/elementSelect';
+import {MaxGridFit} from './BatMan/MaxGridFit';
+
 
 export class MuuriSlideShow
 {
@@ -15,12 +17,14 @@ export class MuuriSlideShow
 			layoutDuration: 400,
 			layoutEasing: 'ease',
 			dragEnabled: true,
-			dragSortHeuristics: {
+			dragSortHeuristics:
+			{
 				sortInterval: 50,
 				minDragDistance: 10,
 				minBounceBackAngle: 1
 			},
-			layout: {
+			layout:
+			{
 				rounding: false
 			},
 			dragStartPredicate: function (item, event)
@@ -30,7 +34,8 @@ export class MuuriSlideShow
 					return this.InDragZone(item, event) ? false : Muuri.ItemDrag.defaultStartPredicate(item, event);
 				}
 			}.bind(this),
-			dragPlaceholder: {
+			dragPlaceholder:
+			{
 				enabled: true,
 				duration: 400,
 				createElement: function (item)
@@ -198,7 +203,7 @@ export class MuuriSlideShow
 		function doSelect(id)
 		{
 			const e = this.ItemFromId(id).getElement();
-			doChooseSlide.call(this,  e);
+			doChooseSlide.call(this, e);
 		}
 
 		function doZoom(id)
@@ -219,7 +224,7 @@ export class MuuriSlideShow
 
 	ItemFromId(id)
 	{
-		const e= this.grid.getElement().querySelector("[data-id='"+id+"']");
+		const e = this.grid.getElement().querySelector("[data-id='" + id + "']");
 		return this.grid.getItems(e)[0];
 	}
 
@@ -268,7 +273,7 @@ export class MuuriSlideShow
 	ToggleZoom()
 	{
 		this.Action("ToggleZoom", getDataId(this.findChosenOne()));
-		
+
 	}
 
 	SlideUnzoom()
@@ -326,12 +331,8 @@ export class MuuriSlideShow
 	ComputeFitColumns()
 	{
 		const rg = this.grid.getItems();
-
 		const slidecount = rg.length;
-		const r = this.grid.getElement().getBoundingClientRect();
-		const numRows = Math.ceil(Math.sqrt(slidecount * r.height / r.width));
-
-		return Math.ceil(numRows * r.width / r.height);
+		return MaxGridFit(this.grid.getElement(), slidecount);
 	}
 
 
@@ -442,10 +443,11 @@ function isChosen(e)
 
 function recomputedimensions()
 {
+	console.debug("recomputedimensions");	
 	this.updateIndices();
 	this.grid.getElement().setAttribute("data-pele-square-size-column-count", this.ComputeFitColumns());
 	this.grid.refreshItems().layout();
-	//console.debug("layoutStart");
+
 }
 
 
