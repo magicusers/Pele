@@ -3,18 +3,16 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title>Muuri Demo</title>
+	<title>Web Slide Show</title>
 
-	<!--
-	<script src="https://unpkg.com/web-animations-js@2.3.2/web-animations.min.js"></script>
--->
 
 	<%= URL_LODASH_LIBRARY %>
+	<%= URL_WEB_ANIMATIONS_LIBRARY %>
 	<%= URL_MUURI_LIBRARY %>
 
 	<script src="../muuri-square-slides.js"></script>
-	<script src="//beb:3000/atheos/afrodite.js"></script>
-	<link rel="stylesheet" href="//beb:3000/atheos/afrodite.css">
+	<script src="//<%= HOST_ATHEOS_LIBRARY %>/atheos/afrodite.js"></script>
+	<link rel="stylesheet" href="//<%= HOST_ATHEOS_LIBRARY %>/atheos/afrodite.css">
 	<style>
 		.Aφρός_Αφροδίτη_window_BannerPane {
 			top: 0;
@@ -25,14 +23,14 @@
 </head>
 
 <body>
-	<header>
+<!-- 	<header>
 		<button onclick="DoPrevious()">Previous</button>
 		<button onclick="DoSome()">Do Some</button>
 		<button onclick="DoDelete()">Delete</button>
 		<button onclick="DoNext()">Next</button>
 	</header>
 
-	<div id="coolslides" class="grid"></div>
+ -->	<div id="coolslides" class="gridContainer"></div>
 
 </body>
 

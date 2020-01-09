@@ -48,16 +48,35 @@ a:hover {
 
 
 /* Grid */
-
-.grid {
+.gridContainer
+{
 	position: relative;
-	top: 5%;
-	max-width: 95%;
+	top: 2em;
+	max-width: 100%;
 	margin: 0 auto;
 	box-sizing: content-box;
 
-	min-height: 90%;
-	border: thin solid $theme-color-primary;
+	//height: 95%;
+	min-height: 95%;
+	min-height:calc(100%-2em);
+	//border: thin dotted $theme-color-primary;
+}
+
+.grid {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	min-width: 100%;
+	min-height: 100%;
+
+	box-sizing: content-box;
+
+	&:focus
+	{
+		background-color: blue;
+	}
 }
 
 .item {

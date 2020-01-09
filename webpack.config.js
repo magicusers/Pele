@@ -8,6 +8,7 @@ const os = require('os');
 
 var webpack = require('webpack');
 
+
 function getSubpagesInFolder(folderpath, re_basefile)
 {
 	var rg = [];
@@ -62,6 +63,22 @@ function makelibconfig(argv)
 	return config;
 }
 
+function getlocalip()
+{
+	const net = os.networkInterfaces();
+
+	const en1 = net.en1;
+	console.debug("net", net);
+	for(let interface in en1)
+	{
+		const i = en1[interface];
+		if(i && i.family == 'IPv4')
+			return i.address;
+	}
+
+	return "localhost";
+}
+
 function makehtmlconfig(argv)
 {
 	const isDevelopment = (argv.mode === 'development');
@@ -78,11 +95,22 @@ function makehtmlconfig(argv)
 		return src? `<script src="${src}"></script>` : "";
 	}
 
-	const rgConstants = [
+	const servicehost = argv.service_host ? argv.service_host : (os.hostname() + ":3000");
+	//const servicehost = argv.service_host ? argv.service_host : (getlocalip() + ":3000");
+	console.log("Service Host:", servicehost);
+
+	const rgConstants ={...[
 		["URL_D3_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"],
 		["URL_LODASH_LIBRARY", null, "https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"],
 		["URL_MUURI_LIBRARY", null, "https://unpkg.com/muuri@0.8.0/dist/muuri.min.js"],
-	].reduce((o,e) => ({...o, [e[0]]: JSON.stringify(scripttag(isDevelopment?e[1]:e[2]))  }), {});
+		["URL_WEB_ANIMATIONS_LIBRARY", null, "https://unpkg.com/web-animations-js@2.3.2/web-animations.min.js"],
+	].reduce((o,e) => ({...o, [e[0]]: JSON.stringify(scripttag(isDevelopment?e[1]:e[2]))  }), {}),
+	...[
+	].reduce((o,e) => ({...o, [e[0]]: JSON.stringify(isDevelopment?e[1]:e[2]) }), {})	,
+
+	HOST_ATHEOS_LIBRARY:JSON.stringify(servicehost),
+	}
+	;
 
 	console.log("rgConstants", rgConstants);
 

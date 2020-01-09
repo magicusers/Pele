@@ -4,24 +4,24 @@
 	"description": "Magicusers Pele Library",
 	"main": "dist/index.html",
 	"scripts": {
-		"build": "webpack --mode=production",
+		"build": "webpack --mode=production --service_host='iris.magicusers.com'",
 		"build:dev": "webpack --mode=development ",
 		"build:watch": "webpack --watch --mode=development ",
-		"start": "webpack-dev-server --mode=development"
+		"start:mobile": "webpack-dev-server --mode=development --service_host=192.168.1.5:3000 ",
+		"start": "webpack-dev-server --mode=development "
 	},
 	"author": "Arun Sagar",
 	"license": "MIT",
 	"postcss": {
 		"plugins": {
-		  "autoprefixer": {}
+			"autoprefixer": {}
 		}
-	  },
-	  "browserslist": [
+	},
+	"browserslist": [
 		"last 2 version",
 		">5%",
 		"ie >10"
-	  ],
-
+	],
 	"devDependencies": {
 		"@babel/core": "^7.7.7",
 		"@babel/plugin-transform-runtime": "^7.7.6",
@@ -33,6 +33,7 @@
 		"css-loader": "^3.4.1",
 		"html-loader": "^0.5.5",
 		"html-webpack-plugin": "^3.2.0",
+		"ip": "^1.1.5",
 		"mini-css-extract-plugin": "^0.8.2",
 		"muuri": "^0.8.0",
 		"node-sass": "^4.13.0",

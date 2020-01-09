@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import * as Muuri from 'muuri';
 import { elementClosest } from './BatMan/elementSelect';
-import {MaxGridFit} from './BatMan/MaxGridFit';
+import {MaxGridFitColumn} from './BatMan/MaxGridFitColumn';
 
 
 export class MuuriSlideShow
@@ -11,7 +11,11 @@ export class MuuriSlideShow
 		var dragCounter = 0;
 		var docElem = document.documentElement;
 
-		const gridElement = document.getElementById(options.ID);
+		this.gridContainer = document.getElementById(options.ID);
+
+		const gridElement = document.createElement("div");
+		gridElement.classList.add("grid");
+		this.gridContainer.appendChild(gridElement);
 
 		options = {
 			layoutDuration: 400,
@@ -63,14 +67,14 @@ export class MuuriSlideShow
 			})
 			.on('move', (data) =>
 			{
-				console.debug("move", data);
+				//console.debug("move", data);
 
 				if (data.item.isDragging())
 					this.ConsolidateMove(getDataId(data.item.getElement()), data.fromIndex, data.toIndex, data.action);
 				this.updateIndices();
 			})
 			.on('sort', () => this.updateIndices())
-			.on('layoutStart', scheduleRecomputeIfNeeded.bind(this))
+			.on('layoutEnd', scheduleRecomputeIfNeeded.bind(this))
 			.on('add', scheduleRecomputeIfNeeded.bind(this))
 			.on('remove', scheduleRecomputeIfNeeded.bind(this))
 			;
@@ -119,7 +123,7 @@ export class MuuriSlideShow
 
 			if (data)
 			{
-				console.debug("text/drop", data);
+				//console.debug("text/drop", data);
 
 				this.DoAdd(data);
 
@@ -151,7 +155,7 @@ export class MuuriSlideShow
 			const eOverlay = elementClosest(e.target, ".pele_deactive_overlay");
 			//	if (eOverlay)
 			{
-				console.debug("In Overlay");
+				//console.debug("In Overlay");
 				event.stopPropagation();
 				//self.Action("DoSelect", rowIndex(e));
 			}
@@ -191,11 +195,11 @@ export class MuuriSlideShow
 
 		function doMove(id, from, to, action)
 		{
-			console.debug("doMove", id, from, to, action);
+			//console.debug("doMove", id, from, to, action);
 			if (action === "move")
 			{
 				const e = this.ItemFromId(id);
-				console.debug("move", from, ">", to);
+				//console.debug("move", from, ">", to);
 				this.grid.move(e, to, false);
 			}
 		}
@@ -252,6 +256,10 @@ export class MuuriSlideShow
 	{
 		this.grid.add(e);
 		this.updateIndices();
+		this.ShowHideBasedOnZoomin();
+
+		if (this.IsInZoomMode())
+			doChooseSlide.call(this, e);
 	}
 
 	SlidePrevious()
@@ -332,7 +340,7 @@ export class MuuriSlideShow
 	{
 		const rg = this.grid.getItems();
 		const slidecount = rg.length;
-		return MaxGridFit(this.grid.getElement(), slidecount);
+		return MaxGridFitColumn(this.gridContainer, slidecount);
 	}
 
 
@@ -443,7 +451,7 @@ function isChosen(e)
 
 function recomputedimensions()
 {
-	console.debug("recomputedimensions");	
+	//console.debug("recomputedimensions");	
 	this.updateIndices();
 	this.grid.getElement().setAttribute("data-pele-square-size-column-count", this.ComputeFitColumns());
 	this.grid.refreshItems().layout();
@@ -453,7 +461,7 @@ function recomputedimensions()
 
 function doChooseSlide(e)
 {
-	console.debug("doChooseSlide", e);
+	//console.debug("doChooseSlide", e);
 	if (e)
 	{
 		this.unchooseSlide(this.findChosenOne());
