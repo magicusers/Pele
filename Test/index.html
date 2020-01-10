@@ -1,1 +1,70 @@
-<!doctype html> <html> <head> <title>Test a Lot</title> </head> <body> <script type="text/javascript" src="../Test/index.js?3a34b1bd0db559723d60"></script></body> </html>
+<!doctype html>
+<html>
+
+<head>
+	<title>Table Edit</title>
+
+</head>
+
+<body>
+	<script src="../table-editor.js"></script>
+	<script src="../square-slides.js"></script>
+
+	<style>
+		#tableContainer {
+			position: relative;
+			width: 90%;
+			height: 90%;
+			border: red thin solid;
+		}
+
+		#output {
+			width: 100%;
+			height: 10%;
+			background-color: darkblue;
+		}
+
+		#output div {
+			font: sans-serif;
+			padding: 3px;
+			margin: 1px;
+			color: white;
+		}
+	</style>
+
+	<table id="cooltable">
+		<thead>
+			<tr>
+				<th>Category</th>
+				<th>Size</th>
+				<th colspan="99">Color</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+					<input name="category" placeholder="nom" type="text" autocomplete="off" />
+				</td>
+				<td>
+					<input name="size" placeholder="0" type="number" autocomplete="off" />
+				</td>
+				<td>
+					<input name="color" type="color" required="required" autocomplete="off" />
+				</td>
+				<td>
+					<span data-remove>×</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+
+	<style>
+	</style>
+	<section id="coolslides">
+
+	</section>
+
+<script type="text/javascript" src="../Test/index.js?00bf4c77d741f724226d"></script></body>
+
+</html>

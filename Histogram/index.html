@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Table Edit</title>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+
+	<style>
+		body,
+		html {
+			margin: 0;
+			height: 100%;
+			width: 100%;
+		}
+
+		html {
+			font-family: Arial, Helvetica, sans-serif;
+		}
+
+		table {
+			text-align: left;
+			width: 100%;
+			border-spacing: 0;
+		}
+
+		table th,
+		table td {
+			padding: 0.5em 0.5em 0.5em 0;
+		}
+
+		table input:not([type="checkbox"]):not([type="radio"]),
+		table textarea {
+			border: 0;
+			display: block;
+			resize: none;
+			font: inherit;
+			padding: 0;
+			margin: 0;
+			outline: none;
+			width: 100%;
+			background: transparent;
+		}
+
+		table tbody td {
+			cursor: text;
+		}
+
+		table tbody tr:last-child [data-remove] {
+			visibility: hidden;
+		}
+
+		table tr.active {
+			background: #ffc;
+		}
+	</style>
+
+	<style>
+		.flex_equispaced_vertical_stack {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.flex_equispaced_vertical_stack>* {
+			flex: 1;
+		}
+
+	</style>
+
+</head>
+
+<body class="flex_equispaced_vertical_stack">
+	<script src="../table-editor.js"></script>
+	<script src="//iris.magicusers.com/atheos/afrodite.js"></script>
+	<link rel="stylesheet" href="//iris.magicusers.com/atheos/afrodite.css">
+	<style>
+		.Aφρός_Αφροδίτη_window_BannerPane {
+			top: 0;
+			opacity: 66%;
+		}
+	</style>
+
+	<style>
+		#tableContainer {
+			position: relative;
+			border: red thin solid;
+		}
+
+		#output {
+			width: 100%;
+			background-color: grey;
+			text-align: center;
+			align-items: center;
+		}
+
+		#output div {
+			font: sans-serif;
+			/*padding: 3px;*/
+			margin: 1px 0;
+			color: white;
+
+			display: flex;
+			justify-content: center;
+			flex-direction: column;
+		}
+		.selected_for_highlight
+		{
+			box-shadow:inset -0.05em -0.05em 2em rgba(255,255,255,0.5), 0.05em 0.05em 2em rgba(0,0,0,0.75), inset 0px 0px 0.05em black
+		}
+
+		table.pele_dragover
+		{
+			border-collapse: collapse;
+		}
+
+		tr.pele_dragover
+		{
+			border-top:hotpink solid thick;
+		}
+
+	</style>
+
+	<div id="output" class="flex_equispaced_vertical_stack">
+	</div>
+
+	<table id="cooltable">
+		<thead>
+			<tr>
+				<th>Category</th>
+				<th>Size</th>
+				<th colspan="99">Color</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr draggable="true">
+				<td>
+					<input name="category" placeholder="nom" type="text" autocomplete="off" />
+				</td>
+				<td>
+					<input name="size" placeholder="0" type="number" autocomplete="off" />
+				</td>
+				<td>
+					<input name="color" type="color" required="required" value="#ff0000" autocomplete="off" />
+				</td>
+				<td>
+					<span data-remove>×</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+
+
+	<script>
+
+
+	</script>
+
+<script type="text/javascript" src="../Histogram/index.js?00bf4c77d741f724226d"></script></body>
+
+</html>
