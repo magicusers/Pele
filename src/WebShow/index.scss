@@ -273,15 +273,8 @@ a:hover {
 		content: "×";
 	}
 
-	.card:hover>& {
+	.pele_edit-mode  & {
 		display: block;
-	}
-
-	.item.muuri-item-dragging &,
-	.item.muuri-item-positioning &,
-	.item.muuri-item-releasing &,
-	.item.muuri-item-placeholder & {
-		display: none;
 	}
 
 }

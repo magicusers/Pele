@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 
 import { KookData } from "../BatMan/KookData";
 import { elementMatches } from '../BatMan/elementSelect';
+import { KeyBufferCommander } from '../BatMan/KeyBufferCommander';
 
 
 
@@ -47,12 +48,12 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 			{
 				const e = generateElement(txt);
 				this.DoAddElement(e);
-				e._pele_export_data= txt;
+				e._pele_export_data = txt;
 			}
 
 			ExportData(e)
 			{
-				const rg= [
+				const rg = [
 					["text/plain", e._pele_export_data]
 				];
 
@@ -112,6 +113,11 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 			}
 		});
 
+		const kbcEditMode = KeyBufferCommander(["ed", "ED"], cmd =>
+		{
+			console.debug("Invoked from keys", cmd);
+			slideshow.EnterEditMode();
+		});
 
 		document.addEventListener("keydown", event =>
 		{
@@ -133,12 +139,12 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 				case 'ArrowDown':
 					break;
 
-				case 'e':
-					case 'E':
-						slideshow.EnterEditMode();
-						break;
 				case 'Enter':
 					slideshow.SlideZoom();
+					break;
+
+				default:
+					kbcEditMode(event.key);
 					break;
 			}
 		});

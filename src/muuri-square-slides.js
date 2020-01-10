@@ -6,7 +6,9 @@ import {MaxGridFitColumn} from './BatMan/MaxGridFitColumn';
 const KONST =
 {
 	pele_dragover: "pele_dragover"
+	, pele_edit_mode:"pele_edit-mode"
 	, DRAGON_DROP_MIME_TYPE: "application/x-pele-move-slideshow"
+
 };
 
 export class MuuriSlideShow
@@ -326,13 +328,13 @@ export class MuuriSlideShow
 
 	InEditMode()
 	{
-		return this.grid.getElement().classList.contains("pele_edit-mode");
+		return this.grid.getElement().classList.contains(KONST.pele_edit_mode);
 
 	}
 
 	EnterEditMode()
 	{
-		this.grid.getElement().classList.add("pele_edit-mode");
+		this.grid.getElement().classList.add(KONST.pele_edit_mode);
 		this.grid.getItems().forEach(item=>{
 			const e = item.getElement().querySelector(".card");
 			e.setAttribute("draggable", true);
@@ -341,7 +343,7 @@ export class MuuriSlideShow
 
 	ExitEditMode()
 	{
-		this.grid.getElement().classList.remove("pele_edit-mode");
+		this.grid.getElement().classList.remove(KONST.pele_edit_mode);
 		this.grid.getItems().forEach(item=>{
 			const e = item.getElement().querySelector(".card");
 			e.removeAttribute("draggable");
