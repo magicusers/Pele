@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import * as Muuri from 'muuri';
+import Muuri from 'Muuri';
 import { elementClosest } from './BatMan/elementSelect';
 import {MaxGridFitColumn} from './BatMan/MaxGridFitColumn';
 

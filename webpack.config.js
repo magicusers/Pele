@@ -160,13 +160,13 @@ function makecommonconfig(argv)
 		{
 			minimize: !isDevelopment
 		},
-		devtool: isDevelopment? 'source-map':false
-		,
+		//devtool: isDevelopment? 'source-map':false
+		devtool: 'source-map',
 		externals: {
 			...(isDevelopment? {}: 
 				{
 					"d3":"d3",
-					"muuri":"muuri",
+					"Muuri":"Muuri",
 					"lodash": {
 						commonjs: 'lodash',
 						commonjs2: 'lodash',
