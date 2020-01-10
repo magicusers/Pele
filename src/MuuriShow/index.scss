@@ -77,6 +77,11 @@ a:hover {
 	{
 		background-color: blue;
 	}
+
+	&.pele_edit-mode
+	{
+		background-color: $theme-color-primary;
+	}
 }
 
 .item {
@@ -204,7 +209,7 @@ a:hover {
 
 		>.pele-responsive_image_container {
 			overflow: hidden;
-			background-size: contain;
+			background-size: cover;
 			background-position: center;
 			background-repeat: no-repeat;
 
@@ -215,6 +220,11 @@ a:hover {
 			right: 0;
 			left: 0;
 			bottom: 0;
+
+			.grid.pele_zoomedin &
+			{
+				background-size: contain;
+			}
 		}
 	}
 

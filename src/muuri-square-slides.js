@@ -3,6 +3,11 @@ import * as Muuri from 'muuri';
 import { elementClosest } from './BatMan/elementSelect';
 import {MaxGridFitColumn} from './BatMan/MaxGridFitColumn';
 
+const KONST =
+{
+	pele_dragover: "pele_dragover"
+	, DRAGON_DROP_MIME_TYPE: "application/x-pele-move-slideshow"
+};
 
 export class MuuriSlideShow
 {
@@ -35,7 +40,7 @@ export class MuuriSlideShow
 			{
 				//if ((event.deltaX > 2 || event.deltaY > 2))
 				{
-					return this.InDragZone(item, event) ? false : Muuri.ItemDrag.defaultStartPredicate(item, event);
+					return this.InDragCancelZone(item, event) ? false : Muuri.ItemDrag.defaultStartPredicate(item, event);
 				}
 			}.bind(this),
 			dragPlaceholder:
@@ -119,11 +124,11 @@ export class MuuriSlideShow
 		{
 			let data = event.dataTransfer.getData("text/html")
 				|| event.dataTransfer.getData("text/uri-list")
-				|| event.dataTransfer.getData("text/*");
+				|| event.dataTransfer.getData("text");
 
 			if (data)
 			{
-				//console.debug("text/drop", data);
+				console.debug("text/drop", data);
 
 				this.DoAdd(data);
 
@@ -143,16 +148,20 @@ export class MuuriSlideShow
 		this.Action("DoMove", ...arguments);
 	}
 
-	OnClick(e)
+	OnClick(event)
 	{
-		const eItem = elementClosest(e.target, ".item");
-		if (eItem && !this.IsInZoomMode())
+		const eItem = elementClosest(event.target, ".item");
+		if (eItem && this.InEditMode())
+		{
+
+		}
+		else if (eItem && !this.IsInZoomMode())
 		{
 			this.DoSelect(getDataId(eItem));
 		}
 		else
 		{
-			const eOverlay = elementClosest(e.target, ".pele_deactive_overlay");
+			const eOverlay = elementClosest(event.target, ".pele_deactive_overlay");
 			//	if (eOverlay)
 			{
 				//console.debug("In Overlay");
@@ -242,9 +251,9 @@ export class MuuriSlideShow
 		return item.getElement().cloneNode(true);
 	}
 
-	InDragZone(item, event)
+	InDragCancelZone(item, event)
 	{
-		return this.IsInZoomMode();
+		return this.InEditMode() || this.IsInZoomMode();
 	}
 
 	IsInZoomMode()
@@ -254,6 +263,8 @@ export class MuuriSlideShow
 
 	DoAddElement(e)
 	{
+		setupDragHandlers.call(this, e);
+
 		this.grid.add(e);
 		this.updateIndices();
 		this.ShowHideBasedOnZoomin();
@@ -313,7 +324,29 @@ export class MuuriSlideShow
 		}
 	}
 
+	InEditMode()
+	{
+		return this.grid.getElement().classList.contains("pele_edit-mode");
 
+	}
+
+	EnterEditMode()
+	{
+		this.grid.getElement().classList.add("pele_edit-mode");
+		this.grid.getItems().forEach(item=>{
+			const e = item.getElement().querySelector(".card");
+			e.setAttribute("draggable", true);
+		});
+	}
+
+	ExitEditMode()
+	{
+		this.grid.getElement().classList.remove("pele_edit-mode");
+		this.grid.getItems().forEach(item=>{
+			const e = item.getElement().querySelector(".card");
+			e.removeAttribute("draggable");
+		});
+	}
 
 	ShowHideBasedOnZoomin()
 	{
@@ -491,3 +524,27 @@ function doZoomSlide(e)
 	this.ShowHideBasedOnZoomin();
 }
 
+function extractURL(e)
+{
+	const eContainer = e.querySelector("div.card-content");
+}
+
+function setupDragHandlers(e)
+{
+	const item = elementClosest(e, ".item");
+	const slideshow = this;
+
+	e.addEventListener("dragstart", function (event)
+	{
+		console.debug("dragstart", event.target);
+
+		const exportdata = slideshow.ExportData(item);
+		exportdata.forEach(rg => {
+			event.dataTransfer.setData(rg[0],rg[1] );
+		})
+		//event.dataTransfer.effectAllowed = "copy";
+		//event.dataTransfer.setData(KONST.DRAGON_DROP_MIME_TYPE, "hello");
+		event.stopPropagation();
+	}, true);
+
+}

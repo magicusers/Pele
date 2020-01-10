@@ -45,12 +45,23 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 
 			DoAddText(txt)
 			{
-				this.DoAddElement(generateElement(txt));
+				const e = generateElement(txt);
+				this.DoAddElement(e);
+				e._pele_export_data= txt;
 			}
 
-			InDragZone(item, event)
+			ExportData(e)
 			{
-				return elementMatches(event.target, '.card-remove, .card-remove i') || super.InDragZone(item, event);
+				const rg= [
+					["text/plain", e._pele_export_data]
+				];
+
+				return rg;
+			}
+
+			InDragCancelZone(item, event)
+			{
+				return elementMatches(event.target, '.card-remove, .card-remove i') || super.InDragCancelZone(item, event);
 			}
 
 			OnClick(e)
@@ -109,6 +120,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 			{
 				case "Escape":
 					slideshow.SlideUnzoom();
+					slideshow.ExitEditMode()
 					break;
 				case 'ArrowLeft':
 					slideshow.SlidePrevious();
@@ -120,6 +132,11 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 					break;
 				case 'ArrowDown':
 					break;
+
+				case 'e':
+					case 'E':
+						slideshow.EnterEditMode();
+						break;
 				case 'Enter':
 					slideshow.SlideZoom();
 					break;
