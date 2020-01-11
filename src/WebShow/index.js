@@ -115,7 +115,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 
 		const kbcEditMode = KeyBufferCommander(["ed", "ED"], cmd =>
 		{
-			console.debug("Invoked from keys", cmd);
+			console.debug("Invoked:", cmd);
 			slideshow.EnterEditMode();
 		});
 

@@ -1,13 +1,15 @@
-export function KeyBufferCommander(rgKeys, callback)
+export function KeyBufferCommander(rgKeys, callback, period)
 {
 	let buffer=[];
 
 	let lastTime = Date.now();
 
+	period = period||1000;
+
 	return function (key)
 	{
 		const now = Date.now();	
-		if (now-lastTime > 1000)
+		if (now-lastTime > period)
 		{
 			buffer=[];
 		}		
