@@ -157,9 +157,11 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 					return `<div class='pele-responsive_image_container' style='background-image:url(${txt})'></div>`;
 
 				case "iframe":
-					return `<iframe src='${txt}'></iframe>`;
+					return `<iframe allow='camera;microphone' src='${txt}'></iframe>`;
 			}
-			return `<div>${txt}</div>`;
+
+			return `<iframe srcdoc='${txt}'></iframe>`;
+			//return `<div>${txt}</div>`;
 		}
 
 
