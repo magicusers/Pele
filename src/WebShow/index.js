@@ -8,13 +8,18 @@ import { KeyBufferCommander } from '../BatMan/KeyBufferCommander';
 
 
 
-class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
+class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 {
 	constructor()
 	{
 		super({
-			ReloadDocumentOnReset: true
+			Title: "Web Magic Show"
+			, ReloadDocumentOnReset: true
+			, Container: document.getElementById("idMagicUsersContainer")
 		});
+
+
+		
 	}
 
 
@@ -87,8 +92,6 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 		}
 
 
-		this.dgBanner.Show("Webshow");
-
 		const slideshow = new MyMurriSlideShow(
 			{
 				ID: "coolslides"
@@ -156,7 +159,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 				case "img":
 					return `<div class='pele-responsive_image_container' style='background-image:url(${txt})'></div>`;
 
-				case "iframe":
+				case "iframe": /* hackhack: Make this more restrictive and secure */
 					return `<iframe allow='camera;microphone' src='${txt}'></iframe>`;
 			}
 
@@ -192,6 +195,8 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 			return e;
 
 		}
+
+		super.OnInit();
 	}
 }
 window.gameserver = new GameControl();

@@ -3,6 +3,33 @@ $theme-color-primary: rgb(4, 120, 214);
 $theme-color-fore: lightyellow;
 $theme-color-back: rgb(42, 2, 1);
 
+$magicmenu-height:1.618em;
+
+#idMagicUsersContainer {
+	height: $magicmenu-height ;
+	opacity: 66%;
+}
+
+.flex-centered-content
+{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.fill-container
+{
+	width:100%;
+	height:100%;
+}
+
+.help_text
+{
+	pointer-events: none;
+	position: absolute;
+	flex-direction: column ;
+}
+
 
 /* Base */
 * {
@@ -51,14 +78,13 @@ a:hover {
 .gridContainer
 {
 	position: relative;
-	top: 2em;
 	max-width: 100%;
 	margin: 0 auto;
 	box-sizing: content-box;
 
 	//height: 95%;
-	min-height: 95%;
-	min-height:calc(100%-2em);
+	min-height: 85%;
+	min-height:calc(100% - $magicmenu-height);
 	//border: thin dotted $theme-color-primary;
 }
 
@@ -81,6 +107,11 @@ a:hover {
 	&.pele_edit-mode
 	{
 		background-color: $theme-color-primary;
+	}
+
+	&:not(:empty) ~ *
+	{
+		display: none;
 	}
 }
 

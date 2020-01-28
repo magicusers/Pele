@@ -19,10 +19,7 @@ export class MuuriSlideShow
 		var docElem = document.documentElement;
 
 		this.gridContainer = document.getElementById(options.ID);
-
-		const gridElement = document.createElement("div");
-		gridElement.classList.add("grid");
-		this.gridContainer.appendChild(gridElement);
+		const gridElement = this.gridContainer.querySelector(".grid");
 
 		options = {
 			layoutDuration: 400,
