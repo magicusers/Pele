@@ -55,8 +55,8 @@ function makelibconfig(argv)
 		},
 		plugins:
 			[
-				  
-			//	isDevelopment ? new NothingPlugin() : new CleanWebpackPlugin()
+
+				//	isDevelopment ? new NothingPlugin() : new CleanWebpackPlugin()
 			],
 	}
 
@@ -69,10 +69,10 @@ function getlocalip()
 
 	const en1 = net.en1;
 	console.debug("net", net);
-	for(let interface in en1)
+	for (let interface in en1)
 	{
 		const i = en1[interface];
-		if(i && i.family == 'IPv4')
+		if (i && i.family == 'IPv4')
 			return i.address;
 	}
 
@@ -90,27 +90,45 @@ function makehtmlconfig(argv)
 	console.log("htmlfiles", htmlfiles);
 	console.log("entry", entryfiles);
 
+
 	function scripttag(src)
 	{
-		return src? `<script src="${src}"></script>` : "";
+		if (src)
+		{
+			const m = src.match(/\.([0-9a-z]+)(?:[\?#]|$)/i);
+			switch (m[0].toLowerCase())
+			{
+				case '.js':
+					return `<script src="${src}"></script>`;
+
+				case '.css':
+					return `<link rel="stylesheet" href="${src}">`;
+			}
+
+		}
+
+		return "";
+
 	}
 
 	const servicehost = argv.service_host ? argv.service_host : (os.hostname() + ":3000");
 	//const servicehost = argv.service_host ? argv.service_host : (getlocalip() + ":3000");
 	console.log("Service Host:", servicehost);
 
-	const rgConstants ={...[
-		["URL_D3_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"],
-		["URL_LODASH_LIBRARY", null, "https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"],
-		["URL_MUURI_LIBRARY", null, "https://unpkg.com/muuri@0.8.0/dist/muuri.min.js"],
-		["URL_WEB_ANIMATIONS_LIBRARY", null, "https://unpkg.com/web-animations-js@2.3.2/web-animations.min.js"],
-	].reduce((o,e) => ({...o, [e[0]]: JSON.stringify(scripttag(isDevelopment?e[1]:e[2]))  }), {}),
-	...[
-	].reduce((o,e) => ({...o, [e[0]]: JSON.stringify(isDevelopment?e[1]:e[2]) }), {})	,
+	const rgConstants = {
+		...[
+			["URL_D3_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"],
+			["URL_LODASH_LIBRARY", null, "https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"],
+			["URL_MUURI_LIBRARY", null, "https://unpkg.com/muuri@0.8.0/dist/muuri.min.js"],
+			["URL_WEB_ANIMATIONS_LIBRARY", null, "https://unpkg.com/web-animations-js@2.3.2/web-animations.min.js"],
+			["URL_WEB_ANIMATECSS_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css"],
+		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(scripttag(isDevelopment ? e[1] : e[2])) }), {}),
+		...[
+		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(isDevelopment ? e[1] : e[2]) }), {}),
 
-	HOST_ATHEOS_LIBRARY:JSON.stringify(servicehost),
+		HOST_ATHEOS_LIBRARY: JSON.stringify(servicehost),
 	}
-	;
+		;
 
 	console.log("rgConstants", rgConstants);
 
@@ -132,7 +150,7 @@ function makehtmlconfig(argv)
 					inject: true,
 					chunks: [page.replace("src/", "").replace(".html", "")],
 
-					
+
 
 				})),
 				new MiniCssExtractPlugin({
@@ -163,10 +181,10 @@ function makecommonconfig(argv)
 		//devtool: isDevelopment? 'source-map':false
 		devtool: 'source-map',
 		externals: {
-			...(isDevelopment? {}: 
+			...(isDevelopment ? {} :
 				{
-					"d3":"d3",
-					"Muuri":"Muuri",
+					"d3": "d3",
+					"Muuri": "Muuri",
 					"lodash": {
 						commonjs: 'lodash',
 						commonjs2: 'lodash',
@@ -174,11 +192,11 @@ function makecommonconfig(argv)
 						root: '_',
 					},
 
-				} )
+				})
 		},
 		devServer: {
 			port: 3333,
-			host:'0.0.0.0'
+			host: '0.0.0.0'
 		},
 		resolve: {
 			extensions: ['.js', '.scss'],
@@ -210,9 +228,9 @@ function makecommonconfig(argv)
 							}
 						},
 						{
-							loader:"postcss-loader",
-							options:{
-								sourceMap:isDevelopment
+							loader: "postcss-loader",
+							options: {
+								sourceMap: isDevelopment
 							}
 
 						},
@@ -236,9 +254,9 @@ function makecommonconfig(argv)
 							}
 						},
 						{
-							loader:"postcss-loader",
-							options:{
-								sourceMap:isDevelopment
+							loader: "postcss-loader",
+							options: {
+								sourceMap: isDevelopment
 							}
 
 						},

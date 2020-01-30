@@ -29,7 +29,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 
 		class MyMurriSlideShow extends Pele.MuuriSlideShow
 		{
-			constructor(options)
+			constructor(options, gameserver)
 			{
 				super(options);
 
@@ -95,7 +95,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 		const slideshow = new MyMurriSlideShow(
 			{
 				ID: "coolslides"
-			});
+			}, this);
 
 		window.DoNext = () => slideshow.DoNext();
 		window.DoPrevious = () => slideshow.DoPrevious();
@@ -199,4 +199,6 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 		super.OnInit();
 	}
 }
-window.gameserver = new GameControl();
+
+Aθεος.Αφροδίτη.OnReady().then(()=>new GameControl());
+
