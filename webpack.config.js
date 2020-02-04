@@ -185,13 +185,7 @@ function makecommonconfig(argv)
 				{
 					"d3": "d3",
 					"Muuri": "Muuri",
-					"lodash": {
-						commonjs: 'lodash',
-						commonjs2: 'lodash',
-						amd: 'lodash',
-						root: '_',
-					},
-
+					"lodash": '_'
 				})
 		},
 		devServer: {
@@ -208,16 +202,16 @@ function makecommonconfig(argv)
 		module: {
 			rules: [
 				{
-					test: /\.pug$/,
+					test: /\.pug$/i,
 					use: ["pug-loader"]
 				},
 				{
-					test: /\.(js)$/,
+					test: /\.(js)$/i,
 					exclude: /(node_modules)/,
 					use: "babel-loader"
 				},
 				{
-					test: /\.module\.s(a|c)ss$/,
+					test: /\.module\.s(a|c)ss$/i,
 					loader: [
 						/*isDevelopment ? 'style-loader' : */MiniCssExtractPlugin.loader,
 						{
@@ -244,7 +238,7 @@ function makecommonconfig(argv)
 				},
 				{
 					test: /\.s(a|c)ss$/,
-					exclude: /\.module.(s(a|c)ss)$/,
+					exclude: /\.module.(s(a|c)ss)$/i,
 					loader: [
 						/*isDevelopment ? 'style-loader' :*/ MiniCssExtractPlugin.loader,
 						{

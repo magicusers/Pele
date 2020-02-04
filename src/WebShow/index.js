@@ -1,6 +1,6 @@
 import './index.scss';
 
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 import { KookData } from "../BatMan/KookData";
 import { elementMatches } from '../BatMan/elementSelect';

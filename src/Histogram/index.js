@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 const output = d3.select("#output");
 
@@ -8,7 +8,9 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 	constructor()
 	{
 		super({
-			ReloadDocumentOnReset: true
+			Title: "Tabula Magic"
+			, ReloadDocumentOnReset: true
+			, Container: document.getElementById("idMagicUsersContainer")
 		});
 	}
 
@@ -16,6 +18,8 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 	OnInit()
 	{
 		let idForOutput=0;
+
+		super.OnInit();
 
 		class MyTable extends Pele.TableEditor
 		{
@@ -171,8 +175,8 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 			}
 		};
 
-		this.dgBanner.Show("Tablula");
 
+		
 		const te = new MyTable({
 			ID: "cooltable"
 		})
@@ -180,4 +184,6 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 
 	}
 }
-window.gameserver = new GameControl();
+
+
+Aθεος.Αφροδίτη.OnReady().then(()=>window.gameserver = new GameControl());
