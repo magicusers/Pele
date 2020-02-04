@@ -5,29 +5,75 @@ $theme-color-back: rgb(42, 2, 1);
 
 $magicmenu-height:1.618em;
 
-#idMagicUsersContainer {
-	height: $magicmenu-height ;
-	opacity: 66%;
+body {
+	display: flex;
+	flex-direction: column;
+
+	transition: ease-in 0.2s all;
 }
 
-.flex-centered-content
-{
+#idTopMenu {
+	.pele_zoomedin & {
+		position: fixed;
+		width: 100%;
+		z-index: 69;
+		opacity: 3%;
+		max-height: 0.5em;
+		overflow: hidden;
+
+		&:hover {
+			opacity: 100%;
+			//height: 10em;
+			max-height:unset;
+		}
+	}
+
+	#idMagicUsersContainer {
+		//	height: $magicmenu-height ;
+		//	opacity: 66%;
+		//	flex-grow:1;
+
+		.pele_zoomedin & {
+//			display: none;
+		}
+
+	}
+
+	#idNavigationBar {
+		display: none;
+
+		button {
+			min-width: 10em;
+			color: $theme-color-fore;
+			background-color: $theme-color-primary;
+			flex: 1;
+		}
+
+		.pele_zoomedin & {
+			display: flex;
+		}
+
+	}
+
+}
+
+
+
+.flex-centered-content {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
 
-.fill-container
-{
-	width:100%;
-	height:100%;
+.fill-container {
+	width: 100%;
+	height: 100%;
 }
 
-.help_text
-{
+.help_text {
 	pointer-events: none;
 	position: absolute;
-	flex-direction: column ;
+	flex-direction: column;
 }
 
 
@@ -75,17 +121,17 @@ a:hover {
 
 
 /* Grid */
-.gridContainer
-{
+.gridContainer {
 	position: relative;
 	max-width: 100%;
-	margin: 0 auto;
+	//margin: 0 auto;
 	box-sizing: content-box;
 
 	//height: 95%;
 	min-height: 85%;
-	min-height:calc(100% - $magicmenu-height);
+	//min-height:calc(100% - #{$magicmenu-height});
 	//border: thin dotted $theme-color-primary;
+	flex-grow: 1;
 }
 
 .grid {
@@ -99,18 +145,15 @@ a:hover {
 
 	box-sizing: content-box;
 
-	&:focus
-	{
+	&:focus {
 		background-color: blue;
 	}
 
-	&.pele_edit-mode
-	{
+	&.pele_edit-mode {
 		background-color: $theme-color-primary;
 	}
 
-	&:not(:empty) ~ *
-	{
+	&:not(:empty)~* {
 		display: none;
 	}
 }
@@ -164,7 +207,7 @@ a:hover {
 
 	}
 
-	.grid.pele_zoomedin & {
+	.pele_zoomedin & {
 		width: 100%;
 		height: 100%;
 		padding-bottom: unset;
@@ -236,6 +279,10 @@ a:hover {
 			width: 100%;
 			margin: 0;
 			padding: 0;
+
+			.pele_zoomedin & {
+				border:thin dotted $theme-color-primary;
+			}			
 		}
 
 		>.pele-responsive_image_container {
@@ -252,14 +299,13 @@ a:hover {
 			left: 0;
 			bottom: 0;
 
-			.grid.pele_zoomedin &
-			{
+			.pele_zoomedin & {
 				background-size: contain;
 			}
 		}
 	}
 
-	.grid.pele_zoomedin & {
+	.pele_zoomedin & {
 		//border: 1px $theme-color-primary dashed;
 		border: unset;
 		margin: 0;
@@ -304,7 +350,7 @@ a:hover {
 		content: "×";
 	}
 
-	.pele_edit-mode  & {
+	.pele_edit-mode & {
 		display: block;
 	}
 

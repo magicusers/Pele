@@ -17,14 +17,19 @@
 
 <body>
 	<!-- 	<header>
-		<button onclick="DoPrevious()">Previous</button>
 		<button onclick="DoSome()">Do Some</button>
 		<button onclick="DoDelete()">Delete</button>
-		<button onclick="DoNext()">Next</button>
 	</header>
 
  -->
-	<div id="idMagicUsersContainer" title="Tap for more online juice"></div>
+	<div id="idTopMenu">
+		<div id="idMagicUsersContainer" title="Tap for more online juice"></div>
+		<div id="idNavigationBar">
+			<button onclick="DoPrevious()">Previous</button>
+			<button onclick="DoExitFullScreen()">Exit FullScreen</button>
+			<button onclick="DoNext()">Next</button>
+		</div>
+	</div>
 	<div id="coolslides" class="gridContainer">
 		<div class="grid"></div>
 		<div class="help_text flex-centered-content fill-container">

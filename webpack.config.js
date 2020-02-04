@@ -195,7 +195,7 @@ function makecommonconfig(argv)
 				})
 		},
 		devServer: {
-			port: 3333,
+			port: 5555,
 			host: '0.0.0.0'
 		},
 		resolve: {

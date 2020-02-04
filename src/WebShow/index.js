@@ -97,10 +97,18 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 				ID: "coolslides"
 			}, this);
 
-		window.DoNext = () => slideshow.DoNext();
-		window.DoPrevious = () => slideshow.DoPrevious();
-		window.DoSome = () => slideshow.DoSome();
-		window.DoDelete = () => slideshow.DoDelete();
+		window.DoNext = () => slideshow.SlideNext();
+		window.DoPrevious = () => slideshow.SlidePrevious();
+		//window.DoSome = () => slideshow.DoSome();
+		//window.DoDelete = () => slideshow.DoDelete();
+		window.DoExitFullScreen = doEscape;
+		
+		function doEscape()
+		{
+					slideshow.SlideUnzoom();
+					slideshow.ExitEditMode()
+
+		}
 
 		document.addEventListener("paste", event =>
 		{
@@ -128,8 +136,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 			switch (event.key)
 			{
 				case "Escape":
-					slideshow.SlideUnzoom();
-					slideshow.ExitEditMode()
+					doEscape();
 					break;
 				case 'ArrowLeft':
 					slideshow.SlidePrevious();

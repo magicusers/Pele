@@ -7,6 +7,7 @@ const KONST =
 {
 	pele_dragover: "pele_dragover"
 	, pele_edit_mode:"pele_edit-mode"
+	, pele_zoomedin:"pele_zoomedin"
 	, DRAGON_DROP_MIME_TYPE: "application/x-pele-move-slideshow"
 
 };
@@ -257,7 +258,7 @@ export class MuuriSlideShow
 
 	IsInZoomMode()
 	{
-		return this.grid.getElement().classList.contains("pele_zoomedin");
+		return document.body.classList.contains(KONST.pele_zoomedin);
 	}
 
 	DoAddElement(e)
@@ -506,7 +507,7 @@ function doChooseSlide(e)
 function unzoomSlide()
 {
 	//alreadyZoomed.classList.remove("pele_zoomedin");
-	this.grid.getElement().classList.remove("pele_zoomedin");
+	document.body.classList.remove(KONST.pele_zoomedin);
 }
 
 function doZoomSlide(e)
@@ -515,7 +516,7 @@ function doZoomSlide(e)
 	if (this.IsInZoomMode())
 		unzoomSlide.call(this);
 	else
-		this.grid.getElement().classList.add("pele_zoomedin");
+		document.body.classList.add(KONST.pele_zoomedin);
 	//	updateIndices();
 	//
 
