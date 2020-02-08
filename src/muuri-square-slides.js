@@ -1,13 +1,15 @@
 import * as _ from 'lodash';
 import Muuri from 'Muuri';
 import { elementClosest } from './BatMan/elementSelect';
-import {MaxGridFitColumn} from './BatMan/MaxGridFitColumn';
+import { MaxGridFitColumn } from './BatMan/MaxGridFitColumn';
 
 const KONST =
 {
 	pele_dragover: "pele_dragover"
-	, pele_edit_mode:"pele_edit-mode"
-	, pele_zoomedin:"pele_zoomedin"
+	, pele_edit_mode: "pele_edit-mode"
+	, pele_zoomedin: "pele_zoomedin"
+	, pele_chosen_one:"pele_chosen_one"
+	, pele_sleeping: "pele_sleeping"
 	, DRAGON_DROP_MIME_TYPE: "application/x-pele-move-slideshow"
 
 };
@@ -165,7 +167,7 @@ export class MuuriSlideShow
 			//	if (eOverlay)
 			{
 				//console.debug("In Overlay");
-				event.stopPropagation();
+				//event.stopPropagation();
 				//self.Action("DoSelect", rowIndex(e));
 			}
 		}
@@ -225,6 +227,12 @@ export class MuuriSlideShow
 			doZoomSlide.call(this, e);
 		}
 
+		function doIframe(id, fState)
+		{
+			const e = this.ItemFromId(id).getElement();
+			doSetIframeActiveState.call(this, e, fState);
+		}
+
 		switch (cmd)
 		{
 			case "DoAdd": doAdd.apply(this, args); break;
@@ -232,6 +240,7 @@ export class MuuriSlideShow
 			case "DoMove": doMove.apply(this, args); break;
 			case "DoSelect": doSelect.apply(this, args); break;
 			case "ToggleZoom": doZoom.apply(this, args); break;
+			case "SetIframeActiveState": doIframe.apply(this, args); break;
 		}
 	}
 
@@ -291,8 +300,15 @@ export class MuuriSlideShow
 
 	ToggleZoom()
 	{
-		this.Action("ToggleZoom", getDataId(this.findChosenOne()));
+		const eChosen = this.findChosenOne();
+		if (eChosen)
+			this.Action("ToggleZoom", getDataId(eChosen));
+	}
 
+	SetIframeActiveState(eCard, fChecked)
+	{
+		if (eCard && eCard.querySelector(".card-content iframe"))
+			this.Action("SetIframeActiveState", getDataId(eCard), fChecked);
 	}
 
 	SlideUnzoom()
@@ -333,7 +349,8 @@ export class MuuriSlideShow
 	EnterEditMode()
 	{
 		this.grid.getElement().classList.add(KONST.pele_edit_mode);
-		this.grid.getItems().forEach(item=>{
+		this.grid.getItems().forEach(item =>
+		{
 			const e = item.getElement().querySelector(".card");
 			e.setAttribute("draggable", true);
 		});
@@ -342,7 +359,8 @@ export class MuuriSlideShow
 	ExitEditMode()
 	{
 		this.grid.getElement().classList.remove(KONST.pele_edit_mode);
-		this.grid.getItems().forEach(item=>{
+		this.grid.getItems().forEach(item =>
+		{
 			const e = item.getElement().querySelector(".card");
 			e.removeAttribute("draggable");
 		});
@@ -388,12 +406,12 @@ export class MuuriSlideShow
 	unchooseSlide(e)
 	{
 		if (e)
-			e.classList.remove("pele-chosen-one");
+			e.classList.remove(KONST.pele_chosen_one);
 	}
 
 	findChosenItem()
 	{
-		const eChosen = this.grid.getItems().filter(item => item.getElement().classList.contains("pele-chosen-one"));
+		const eChosen = this.grid.getItems().filter(item => item.getElement().classList.contains(KONST.pele_chosen_one));
 		if (eChosen.length)
 			return eChosen[0];
 	}
@@ -409,7 +427,7 @@ export class MuuriSlideShow
 	{
 		if (e)
 		{
-			e.classList.add("pele-chosen-one");
+			e.classList.add(KONST.pele_chosen_one);
 		}
 	}
 
@@ -479,7 +497,7 @@ function removeItem(elem, envelope)
 
 function isChosen(e)
 {
-	return e.classList.contains("pele-chosen-one");
+	return e.classList.contains(KONST.pele_chosen_one);
 }
 
 function recomputedimensions()
@@ -503,6 +521,30 @@ function doChooseSlide(e)
 	}
 }
 
+
+function doSetIframeActiveState(e, fState)
+{
+	if (e)
+	{
+		const eFrame = e.querySelector(".card-content iframe");
+		if (eFrame)
+		{
+			console.debug("iFrame detected", eFrame, fState);
+			if(fState)
+			{
+				e.classList.add(KONST.pele_sleeping);
+				eFrame.setAttribute("sandbox", "");
+			}
+			else
+			{
+				e.classList.remove(KONST.pele_sleeping);
+				eFrame.removeAttribute("sandbox");
+			}
+
+			eFrame.src = eFrame.src;
+		}
+	}
+}
 
 function unzoomSlide()
 {
@@ -539,8 +581,9 @@ function setupDragHandlers(e)
 		console.debug("dragstart", event.target);
 
 		const exportdata = slideshow.ExportData(item);
-		exportdata.forEach(rg => {
-			event.dataTransfer.setData(rg[0],rg[1] );
+		exportdata.forEach(rg =>
+		{
+			event.dataTransfer.setData(rg[0], rg[1]);
 		})
 		//event.dataTransfer.effectAllowed = "copy";
 		//event.dataTransfer.setData(KONST.DRAGON_DROP_MIME_TYPE, "hello");

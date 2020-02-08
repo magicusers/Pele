@@ -12,6 +12,23 @@ body {
 	transition: ease-in 0.2s all;
 }
 
+button {
+	color: $theme-color-fore;
+	background-color: $theme-color-primary;
+	border: none;
+	border-radius: 0.1em;
+	transition: all 0.4s ease 0s;
+}
+
+button:hover {
+	color: $theme-color-back;
+	background-color: $theme-color-fore;
+	letter-spacing: .025em;
+	box-shadow: 5px 40px -10px rgba(0, 0, 0, 0.57);
+}
+
+
+
 #idTopMenu {
 	.pele_zoomedin & {
 		position: fixed;
@@ -24,7 +41,7 @@ body {
 		&:hover {
 			opacity: 100%;
 			//height: 10em;
-			max-height:unset;
+			max-height: unset;
 		}
 	}
 
@@ -34,7 +51,7 @@ body {
 		//	flex-grow:1;
 
 		.pele_zoomedin & {
-//			display: none;
+			//			display: none;
 		}
 
 	}
@@ -42,11 +59,12 @@ body {
 	#idNavigationBar {
 		display: none;
 
+		
 		button {
-			min-width: 10em;
-			color: $theme-color-fore;
-			background-color: $theme-color-primary;
+			//min-width: 10em;
 			flex: 1;
+			font-size:1.618rem;
+			margin:0.1rem;
 		}
 
 		.pele_zoomedin & {
@@ -203,7 +221,8 @@ a:hover {
 		width: 100%;
 		height: 100%;
 		background: gray;
-		opacity: .5;
+		opacity: .25;
+		pointer-events: none;
 
 	}
 
@@ -213,22 +232,22 @@ a:hover {
 		padding-bottom: unset;
 		transition: all .2s ease-in;
 
+		.card {
+			> :not(.card-content) {
+				display: none;
+			}
 
-		.pele_deactive_overlay,
-		.card-id,
-		.card-title,
-		.card-remove {
-			display: none;
 		}
+
 
 	}
 
-	&.pele-chosen-one {
+	&.pele_chosen_one {
 
 		//background-color:red;
 		.pele_deactive_overlay {
 			background: $theme-color-primary;
-			opacity: .75;
+			opacity: .5;
 			box-shadow: 0 0 .5em .5em $theme-color-primary;
 		}
 	}
@@ -269,6 +288,15 @@ a:hover {
 		bottom: 0;
 		overflow: hidden;
 
+		&>:first-child {
+			pointer-events: none;
+
+			.pele_zoomedin .pele_chosen_one & {
+				pointer-events: unset;
+			}
+		}
+
+
 		>iframe {
 			position: absolute;
 			top: 0;
@@ -281,8 +309,8 @@ a:hover {
 			padding: 0;
 
 			.pele_zoomedin & {
-				border:thin dotted $theme-color-primary;
-			}			
+				border: thin dotted $theme-color-primary;
+			}
 		}
 
 		>.pele-responsive_image_container {
@@ -352,6 +380,89 @@ a:hover {
 
 	.pele_edit-mode & {
 		display: block;
+	}
+
+}
+
+.card-operations {
+	position: absolute;
+	left:0;
+	bottom: 0;
+//	width: 100%;
+//	height: calc(100% - 2em);
+	//border: thin solid red;
+	text-align: center;
+	transition: all .3s ease 0s;
+
+	button {
+		font-size: 2rem;
+	}
+
+	opacity: 11%;
+
+	&:hover {
+		opacity: 88%;
+		background-color: $theme-color-back;
+	}
+
+	/* 	.card-op-play {
+		input
+		{
+			display: none;
+		}
+
+		span::before {
+			content: "►";
+		}
+
+		input:checked + span:before
+		{
+			content: "◼";
+		}
+	} */
+
+	.pele_zoomedin &
+	{
+		display: none;
+	}
+
+	.pele_sleeping &
+	{
+		display: flex;
+
+		background:
+		linear-gradient(324deg, $theme-color-back 4%,   transparent 4%) -.7em .43em,
+		linear-gradient( 36deg, $theme-color-back 4%,   transparent 4%) .30em .43em,
+		linear-gradient( 72deg, $theme-color-fore 8.5%, transparent 8.5%) .30em .43em,
+		linear-gradient(288deg, $theme-color-fore 8.5%, transparent 8.5%) -.7em .43em,
+		linear-gradient(216deg, $theme-color-fore 7.5%, transparent 7.5%) -.7em .23em,
+		linear-gradient(144deg, $theme-color-fore 7.5%, transparent 7.5%) .30em .23em,
+		
+		linear-gradient(324deg, $theme-color-back 4%,   transparent 4%) -.20em .93em,
+		linear-gradient( 36deg, $theme-color-back 4%,   transparent 4%) .80em .93em,
+		linear-gradient( 72deg, $theme-color-fore 8.5%, transparent 8.5%) .80em .93em,
+		linear-gradient(288deg, $theme-color-fore 8.5%, transparent 8.5%) -.20em .93em,
+		linear-gradient(216deg, $theme-color-fore 7.5%, transparent 7.5%) -.20em .73em,
+		linear-gradient(144deg, $theme-color-fore 7.5%, transparent 7.5%) .80em .73em;
+		background-color: $theme-color-back;
+		background-size: 1em 1em;
+		opacity: 80%;
+	}
+
+	.card-op-sleep {
+		display: unset;
+
+		.pele_sleeping & {
+			display: none;
+		}
+	}
+
+	.card-op-wake {
+		display: none;
+
+		.pele_sleeping & {
+			display: unset;
+		}
 	}
 
 }

@@ -3,11 +3,27 @@ import './index.scss';
 import _ from 'lodash';
 
 import { KookData } from "../BatMan/KookData";
-import { elementMatches } from '../BatMan/elementSelect';
+import { elementMatches, elementClosest } from '../BatMan/elementSelect';
 import { KeyBufferCommander } from '../BatMan/KeyBufferCommander';
 
-const initgame = _.once(function(){
+const initgame = _.once(function ()
+{
 	let uuid = 0;
+
+	function matchesCloseButton(el)
+	{
+		return elementMatches(el, '.card-remove, .card-remove i');
+	}
+
+	function matchesSleepButton(el)
+	{
+		return elementMatches(el, '.card-op-sleep');
+	}
+
+	function matchesWakeButton(el)
+	{
+		return elementMatches(el, '.card-op-wake');
+	}
 
 	class MyMurriSlideShow extends Pele.MuuriSlideShow
 	{
@@ -19,6 +35,11 @@ const initgame = _.once(function(){
 			{
 				this.original_Action(...args, envelope);
 			}.bind(this));
+
+			this.grid.getElement().addEventListener("change", function (event)
+			{
+				console.debug("onchange", event);
+			});
 		}
 
 		Action()
@@ -47,17 +68,29 @@ const initgame = _.once(function(){
 			return rg;
 		}
 
+
 		InDragCancelZone(item, event)
 		{
-			return elementMatches(event.target, '.card-remove, .card-remove i') || super.InDragCancelZone(item, event);
+			const eTarget = event.target;
+
+			return matchesCloseButton(eTarget)
+				|| matchesSleepButton(eTarget)
+				|| matchesWakeButton(eTarget)
+				|| super.InDragCancelZone(item, event);
 		}
 
-		OnClick(e)
+		OnClick(event)
 		{
-			if (elementMatches(e.target, '.card-remove, .card-remove i'))
-				this.RemoveItem(e.target);
+			console.debug("OnClick", event);
+			const eTarget = event.target;
+			if (matchesCloseButton(eTarget))
+				this.RemoveItem(eTarget);
+			else if (matchesSleepButton(eTarget))
+				this.SetIframeActiveState(elementClosest(eTarget, ".item"), true);
+			else if (matchesWakeButton(eTarget))
+				this.SetIframeActiveState(elementClosest(eTarget, ".item"), false);
 			else
-				super.OnClick(e);
+				super.OnClick(event);
 		}
 
 		CreateDragShadow(item)
@@ -84,11 +117,11 @@ const initgame = _.once(function(){
 	//window.DoSome = () => slideshow.DoSome();
 	//window.DoDelete = () => slideshow.DoDelete();
 	window.DoExitFullScreen = doEscape;
-	
+
 	function doEscape()
 	{
-				slideshow.SlideUnzoom();
-				slideshow.ExitEditMode()
+		slideshow.SlideUnzoom();
+		slideshow.ExitEditMode()
 
 	}
 
@@ -141,18 +174,25 @@ const initgame = _.once(function(){
 		}
 	});
 
+
 	function createslide(type, txt)
 	{
+		const iframecontrols =
+			'<div class="card-operations flex-centered-content fill-container">' +
+			'<button class="card-op-sleep">Sleep</button>' +
+			'<button class="card-op-wake">Wake</button>' +
+			'</div>';
+
 		switch (type)
 		{
 			case "img":
 				return `<div class='pele-responsive_image_container' style='background-image:url(${txt})'></div>`;
 
 			case "iframe": /* hackhack: Make this more restrictive and secure */
-				return `<iframe allow='camera;microphone' src='${txt}'></iframe>`;
+				return `<iframe allow='camera;microphone' src='${txt}'></iframe>` + iframecontrols;
 		}
 
-		return `<iframe srcdoc='${txt}'></iframe>`;
+		return `<iframe srcdoc='${txt}'></iframe>` + iframecontrols;
 		//return `<div>${txt}</div>`;
 	}
 
@@ -197,7 +237,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 		});
 
 
-		
+
 	}
 
 
@@ -208,5 +248,5 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 	}
 }
 
-Aθεος.Αφροδίτη.OnReady().then(()=>new GameControl());
+Aθεος.Αφροδίτη.OnReady().then(() => new GameControl());
 
