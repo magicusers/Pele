@@ -363,7 +363,11 @@ a:hover {
 	transition: all .3s ease 0s;
 
 	button {
-		font-size: 2rem;
+		font-size: 1rem;
+
+		.pele_zoomedin & {
+			font-size: 2rem;
+		}		
 	}
 
 	opacity: 11%;
@@ -450,13 +454,14 @@ a:hover {
 	.pele_zoomedin .pele_chosen_one & {
 		display: flex;
 		z-index: 69;
-		opacity: 5%;
-		max-height: 0.5em;
+		opacity: 1%;
+		max-height: 0.3em;
 		overflow: hidden;
 
 		&:hover {
 			opacity: 100%;
 			max-height: unset;
+			padding: 1em 1em 2em;
 		}
 
 	}
