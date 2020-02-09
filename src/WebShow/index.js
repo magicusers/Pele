@@ -89,6 +89,12 @@ const initgame = _.once(function ()
 				this.SetIframeActiveState(elementClosest(eTarget, ".item"), true);
 			else if (matchesWakeButton(eTarget))
 				this.SetIframeActiveState(elementClosest(eTarget, ".item"), false);
+			else if (elementMatches(eTarget, ".card-op-Previous"))
+				this.SlidePrevious();
+			else if (elementMatches(eTarget, ".card-op-Next"))
+				this.SlideNext();
+			else if (elementMatches(eTarget, ".card-op-ExitFullScreen"))
+				this.DoEscape();
 			else
 				super.OnClick(event);
 		}
@@ -104,6 +110,12 @@ const initgame = _.once(function ()
 
 			return e;
 		}
+
+		DoEscape()
+		{
+			this.SlideUnzoom();
+			this.ExitEditMode()
+		}
 	}
 
 
@@ -116,14 +128,8 @@ const initgame = _.once(function ()
 	window.DoPrevious = () => slideshow.SlidePrevious();
 	//window.DoSome = () => slideshow.DoSome();
 	//window.DoDelete = () => slideshow.DoDelete();
-	window.DoExitFullScreen = doEscape;
+	window.DoExitFullScreen = () => slideshow.DoEscape();
 
-	function doEscape()
-	{
-		slideshow.SlideUnzoom();
-		slideshow.ExitEditMode()
-
-	}
 
 	document.addEventListener("paste", event =>
 	{
@@ -151,7 +157,7 @@ const initgame = _.once(function ()
 		switch (event.key)
 		{
 			case "Escape":
-				doEscape();
+				slideshow.DoEscape();
 				break;
 			case 'ArrowLeft':
 				slideshow.SlidePrevious();
@@ -174,56 +180,84 @@ const initgame = _.once(function ()
 		}
 	});
 
-
-	function createslide(type, txt)
+	function removeElement(e)
 	{
-		const iframecontrols =
-			'<div class="card-operations flex-centered-content fill-container">' +
-			'<button class="card-op-sleep">Sleep</button>' +
-			'<button class="card-op-wake">Wake</button>' +
-			'</div>';
+		e.parentElement.removeChild(e);
+	}
+
+	function extractTemplateElement(id)
+	{
+		const e = document.getElementById(id);
+		removeElement(e);
+		e.removeAttribute("id", e);
+
+		return e;
+	}
+
+
+	const eCardOpsTemplate = extractTemplateElement("idTemplateCardOperations");
+	const eItemTemplate = extractTemplateElement("idTemplateItem");
+	const eNavigationTemplate = extractTemplateElement("idTemplateNavigation");
+
+	function createslide(eContent, type, txt)
+	{
+		const eNav = eNavigationTemplate.cloneNode(true);
 
 		switch (type)
 		{
 			case "img":
-				return `<div class='pele-responsive_image_container' style='background-image:url(${txt})'></div>`;
+				{
+					const e = document.createElement("div");
+					e.classList.add("pele-responsive_image_container");
+					e.style.backgroundImage = `url(${txt})`;
 
-			case "iframe": /* hackhack: Make this more restrictive and secure */
-				return `<iframe allow='camera;microphone' src='${txt}'></iframe>` + iframecontrols;
+					removeElement(eNav.querySelector(".card-op-sleep"));
+					eContent.appendChild(e);
+				}
+				break;
+
+			case "iframe": // hackhack: Make this more restrictive and secure
+				{
+					const e = document.createElement("iframe");
+					e.setAttribute("allow", "camera;microphone");
+					e.setAttribute("src", txt);
+					eContent.appendChild(e);
+					eContent.appendChild(eCardOpsTemplate.cloneNode(true));
+				}
+				break;
+
+			default:
+				{
+
+					const e = document.createElement("iframe");
+					e.setAttribute("srcdoc", txt);
+					eContent.appendChild(e);
+					eContent.appendChild(eCardOpsTemplate.cloneNode(true));
+				}
+				break;
 		}
 
-		return `<iframe srcdoc='${txt}'></iframe>` + iframecontrols;
-		//return `<div>${txt}</div>`;
+		eContent.appendChild(eNav);
 	}
-
 
 	function generateElement(txt)
 	{
 		const id = ++uuid;
 		const title = id;
 
-		var itemElem = document.createElement('div');
-		var itemTemplate = '' +
-			'<div class="item" data-id="' + id + '" data-title="' + title + '">' +
-			'<div class="item-content">' +
-			'<div class="card">' +
-			'<div class="card-content">' +
-			createslide.apply(this, KookData(txt)) +
-			'</div>' +
-			//'<div class="card-title">' + title + '</div>' +
-			'<div class="pele_deactive_overlay"></div>' +
-			'<div class="card-id">' + id + '</div>' +
-			'<div class="card-remove"></div>' +
-			'</div>' +
-			'</div>' +
-			'</div>';
+		const itemElem = eItemTemplate.cloneNode(true);
+		itemElem.setAttribute("data-id", id);
+		itemElem.setAttribute("data-title", title);
 
-		itemElem.innerHTML = itemTemplate;
+		const eContent = itemElem.querySelector(".card-content");
 
-		const e = itemElem.firstChild;
-		return e;
+		createslide(eContent, ...KookData(txt));
 
+		itemElem.querySelector(".card-id").innerHTML = id;
+		return itemElem;
 	}
+
+
 });
 
 class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld

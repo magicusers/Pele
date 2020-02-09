@@ -28,21 +28,9 @@ button:hover {
 }
 
 
-
 #idTopMenu {
 	.pele_zoomedin & {
-		position: fixed;
-		width: 100%;
-		z-index: 69;
-		opacity: 3%;
-		max-height: 0.5em;
-		overflow: hidden;
-
-		&:hover {
-			opacity: 100%;
-			//height: 10em;
-			max-height: unset;
-		}
+		display: none;
 	}
 
 	#idMagicUsersContainer {
@@ -55,27 +43,7 @@ button:hover {
 		}
 
 	}
-
-	#idNavigationBar {
-		display: none;
-
-		
-		button {
-			//min-width: 10em;
-			flex: 1;
-			font-size:1.618rem;
-			margin:0.1rem;
-		}
-
-		.pele_zoomedin & {
-			display: flex;
-		}
-
-	}
-
 }
-
-
 
 .flex-centered-content {
 	display: flex;
@@ -386,10 +354,10 @@ a:hover {
 
 .card-operations {
 	position: absolute;
-	left:0;
+	left: 0;
 	bottom: 0;
-//	width: 100%;
-//	height: calc(100% - 2em);
+	//	width: 100%;
+	//	height: calc(100% - 2em);
 	//border: thin solid red;
 	text-align: center;
 	transition: all .3s ease 0s;
@@ -421,48 +389,75 @@ a:hover {
 		}
 	} */
 
-	.pele_zoomedin &
-	{
+	.pele_zoomedin & {
 		display: none;
 	}
 
-	.pele_sleeping &
-	{
+	.pele_sleeping & {
 		display: flex;
 
 		background:
-		linear-gradient(324deg, $theme-color-back 4%,   transparent 4%) -.7em .43em,
-		linear-gradient( 36deg, $theme-color-back 4%,   transparent 4%) .30em .43em,
-		linear-gradient( 72deg, $theme-color-fore 8.5%, transparent 8.5%) .30em .43em,
-		linear-gradient(288deg, $theme-color-fore 8.5%, transparent 8.5%) -.7em .43em,
-		linear-gradient(216deg, $theme-color-fore 7.5%, transparent 7.5%) -.7em .23em,
-		linear-gradient(144deg, $theme-color-fore 7.5%, transparent 7.5%) .30em .23em,
-		
-		linear-gradient(324deg, $theme-color-back 4%,   transparent 4%) -.20em .93em,
-		linear-gradient( 36deg, $theme-color-back 4%,   transparent 4%) .80em .93em,
-		linear-gradient( 72deg, $theme-color-fore 8.5%, transparent 8.5%) .80em .93em,
-		linear-gradient(288deg, $theme-color-fore 8.5%, transparent 8.5%) -.20em .93em,
-		linear-gradient(216deg, $theme-color-fore 7.5%, transparent 7.5%) -.20em .73em,
-		linear-gradient(144deg, $theme-color-fore 7.5%, transparent 7.5%) .80em .73em;
+			linear-gradient(324deg, $theme-color-back 4%, transparent 4%) -.7em .43em,
+			linear-gradient(36deg, $theme-color-back 4%, transparent 4%) .30em .43em,
+			linear-gradient(72deg, $theme-color-fore 8.5%, transparent 8.5%) .30em .43em,
+			linear-gradient(288deg, $theme-color-fore 8.5%, transparent 8.5%) -.7em .43em,
+			linear-gradient(216deg, $theme-color-fore 7.5%, transparent 7.5%) -.7em .23em,
+			linear-gradient(144deg, $theme-color-fore 7.5%, transparent 7.5%) .30em .23em,
+
+			linear-gradient(324deg, $theme-color-back 4%, transparent 4%) -.20em .93em,
+			linear-gradient(36deg, $theme-color-back 4%, transparent 4%) .80em .93em,
+			linear-gradient(72deg, $theme-color-fore 8.5%, transparent 8.5%) .80em .93em,
+			linear-gradient(288deg, $theme-color-fore 8.5%, transparent 8.5%) -.20em .93em,
+			linear-gradient(216deg, $theme-color-fore 7.5%, transparent 7.5%) -.20em .73em,
+			linear-gradient(144deg, $theme-color-fore 7.5%, transparent 7.5%) .80em .73em;
 		background-color: $theme-color-back;
 		background-size: 1em 1em;
 		opacity: 80%;
 	}
 
-	.card-op-sleep {
-		display: unset;
+}
 
-		.pele_sleeping & {
-			display: none;
-		}
-	}
+.card-op-sleep {
+	display: unset;
 
-	.card-op-wake {
+	.pele_sleeping & {
 		display: none;
+	}
+}
 
-		.pele_sleeping & {
-			display: unset;
-		}
+.card-op-wake {
+	display: none;
+
+	.pele_sleeping & {
+		display: unset;
+	}
+}
+
+.navigation-bar {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	left: 0;
+	display: none;
+
+	button {
+		//min-width: 10em;
+		flex: 1;
+		font-size: 1.618rem;
+		margin: 0.1rem;
 	}
 
+	.pele_zoomedin .pele_chosen_one & {
+		display: flex;
+		z-index: 69;
+		opacity: 5%;
+		max-height: 0.5em;
+		overflow: hidden;
+
+		&:hover {
+			opacity: 100%;
+			max-height: unset;
+		}
+
+	}
 }
