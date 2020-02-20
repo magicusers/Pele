@@ -56,8 +56,14 @@ function makelibconfig(argv)
 		plugins:
 			[
 
-				//	isDevelopment ? new NothingPlugin() : new CleanWebpackPlugin()
-			],
+				isDevelopment ? new NothingPlugin() : new CleanWebpackPlugin()
+				,new MiniCssExtractPlugin({
+					//filename: isDevelopment ? '[name].css' : '[name].[contenthash].css',
+					filename: '[name].css',
+					chunkFilename: isDevelopment ? '[id].css' : '[id].[contenthash].css'
+				}),
+
+		],
 	}
 
 	return config;
@@ -122,6 +128,9 @@ function makehtmlconfig(argv)
 			["URL_MUURI_LIBRARY", null, "https://unpkg.com/muuri@0.8.0/dist/muuri.min.js"],
 			["URL_WEB_ANIMATIONS_LIBRARY", null, "https://unpkg.com/web-animations-js@2.3.2/web-animations.min.js"],
 			["URL_WEB_ANIMATECSS_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css"],
+			["URL_VIDEOJS_LIBRARY", null, "https://unpkg.com/video.js/dist/video.min.js"],
+			["URL_VIDEOJS_CSS", null, "https://unpkg.com/video.js/dist/video-js.min.css"],
+			["URL_VIDEOJS_PLUGIN_YOUTUBE_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.6.1/Youtube.min.js"],			
 		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(scripttag(isDevelopment ? e[1] : e[2])) }), {}),
 		...[
 		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(isDevelopment ? e[1] : e[2]) }), {}),
@@ -185,12 +194,14 @@ function makecommonconfig(argv)
 				{
 					"d3": "d3",
 					"Muuri": "Muuri",
-					"lodash": '_'
+					"lodash": '_',
+					"videojs":"videojs"
 				})
 		},
 		devServer: {
 			port: 5555,
-			host: '0.0.0.0'
+			host: '0.0.0.0',
+			https: !!(process.env.NODE_USE_SSL)
 		},
 		resolve: {
 			extensions: ['.js', '.scss'],
@@ -237,7 +248,7 @@ function makecommonconfig(argv)
 					]
 				},
 				{
-					test: /\.s(a|c)ss$/,
+					test: /\.s(a|c)ss$/i,
 					exclude: /\.module.(s(a|c)ss)$/i,
 					loader: [
 						/*isDevelopment ? 'style-loader' :*/ MiniCssExtractPlugin.loader,
@@ -263,7 +274,7 @@ function makecommonconfig(argv)
 					]
 				}
 				, {
-					test: /\.(png|jpg|svg)$/,
+					test: /\.(png|jpg|svg)$/i,
 					use: {
 						loader: 'url-loader'
 						, options: {
@@ -272,7 +283,7 @@ function makecommonconfig(argv)
 					}
 				},
 				{
-					test: /\.ttf$/,
+					test: /\.ttf$/i,
 					use: [
 						{
 							loader: 'ttf-loader',
@@ -283,7 +294,7 @@ function makecommonconfig(argv)
 					]
 				},
 				{
-					test: /\.(eot|woff|woff2)$/,
+					test: /\.(eot|woff|woff2)$/i,
 					loader: 'file-loader',
 					options: {
 						name: 'fonts/[name].[ext]'

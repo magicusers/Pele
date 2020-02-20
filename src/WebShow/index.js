@@ -131,6 +131,20 @@ const initgame = _.once(function ()
 	window.DoExitFullScreen = () => slideshow.DoEscape();
 
 
+
+	Aθεος.Freyja.AddHandler(function (responder, cmd, ...data)
+	{
+		console.debug("Freyja IPC", cmd, ...data);
+		switch (cmd)
+		{
+			case "Mediaplayer.Control.Directive":
+				Aθεος.Freyja.Children().forEach(child=>Aθεος.Freyja.QueryChild(child, cmd, ...data));				
+				//responder.Success();
+				break;
+		}
+	});
+
+
 	document.addEventListener("paste", event =>
 	{
 		let data = (event.clipboardData || window.clipboardData).getData('text');

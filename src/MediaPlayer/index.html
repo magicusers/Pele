@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+
+<head>
+	<title>Media Player</title>
+
+	<link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet" />
+
+	<%= URL_LODASH_LIBRARY %>
+
+	<%= URL_VIDEOJS_LIBRARY %>
+	<%= URL_VIDEOJS_PLUGIN_YOUTUBE_LIBRARY %>
+</head>
+
+<body>
+	<script src="//<%= HOST_ATHEOS_LIBRARY %>/atheos/afrodite.js"></script>
+	<link rel="stylesheet" href="//<%= HOST_ATHEOS_LIBRARY %>/atheos/themes/app.dark.css">
+	<style>
+		#idMagicUsersContainer {
+			height: 1.1618em;
+			width: 100%;
+		}
+	</style>
+	<div id="idMagicUsersContainer" title="Tap for more online juice"></div>
+
+	<style>
+		.video-js 
+		{
+			position: absolute;
+			height: 100%;
+			width:100%;
+			left:0;
+			top:0;
+		}
+	</style>
+	<div id="idMediaContainer" style="position: relative;width: 100%;height: 100%;">
+
+
+	</div>
+
+</body>
+
+</html>

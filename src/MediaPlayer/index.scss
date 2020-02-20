@@ -1,0 +1,96 @@
+//Theme
+$theme-color-primary: rgb(4, 120, 214);
+$theme-color-fore: lightyellow;
+$theme-color-back: rgb(2, 42, 1);
+
+$magicmenu-height:1.618em;
+
+body {
+	display: flex;
+	flex-direction: column;
+
+	transition: ease-in 0.2s all;
+}
+
+button {
+	color: $theme-color-fore;
+	background-color: $theme-color-primary;
+	border: none;
+	border-radius: 0.1em;
+	transition: all 0.4s ease 0s;
+}
+
+button:hover {
+	color: $theme-color-back;
+	background-color: $theme-color-fore;
+	letter-spacing: .025em;
+	box-shadow: 5px 40px -10px rgba(0, 0, 0, 0.57);
+}
+
+
+#idTopMenu {
+	.pele_zoomedin & {
+		display: none;
+	}
+
+	#idMagicUsersContainer {
+		//	height: $magicmenu-height ;
+		//	opacity: 66%;
+		//	flex-grow:1;
+
+		.pele_zoomedin & {
+			//			display: none;
+		}
+
+	}
+}
+
+.flex-centered-content {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.fill-container {
+	width: 100%;
+	height: 100%;
+}
+
+.help_text {
+	pointer-events: none;
+	position: absolute;
+	flex-direction: column;
+}
+
+
+/* Base */
+* {
+	box-sizing: border-box;
+}
+
+html {
+	overflow-y: auto;
+	overflow-x: hidden;
+	background: $theme-color-back;
+}
+
+html.dragging body {
+	user-select: none;
+}
+
+html,
+body {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+}
+
+body {
+	position: relative;
+	font-family: 'Fira Sans', Helvetica, Arial, sans-serif;
+	//	font-size: 1.25em;
+	line-height: 1.5;
+
+	color: $theme-color-fore;
+
+}
