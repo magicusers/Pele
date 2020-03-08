@@ -11,6 +11,8 @@ const initgame = _.once(function ()
 {
 	let uuid = 0;
 
+	const typeMagicIFrame = "magic.iframe";
+
 	function matchesCloseButton(el)
 	{
 		return elementMatches(el, '.card-remove, .card-remove i');
@@ -26,7 +28,12 @@ const initgame = _.once(function ()
 		return elementMatches(el, '.card-op-wake');
 	}
 
+	function extractContentElement(e)
+	{
+		return e.querySelector('.card-content').firstElementChild;
+	}
 
+	
 	class MyMurriSlideShow extends Pele.MuuriSlideShow
 	{
 		constructor(options, gameserver)
@@ -41,6 +48,33 @@ const initgame = _.once(function ()
 			this.grid.getElement().addEventListener("change", function (event)
 			{
 				console.debug("onchange", event);
+			});
+
+			this.rgPendingMagicFrames={};
+			this.patched_AddType=gameserver.Patch((type, txt)=>{
+				const e = generateElement(type, txt);
+				this.DoAddElement(e);
+	
+				if (type === "iframe" && (txt in this.rgPendingMagicFrames))
+				{
+					const url = txt;
+					const archivedata = this.rgPendingMagicFrames[url];
+					delete this.rgPendingMagicFrames[url];
+
+					const eFrame = extractContentElement(e);
+					eFrame.addEventListener("load", ()=>{
+						Aθεος.Freyja.OnReadyChild(eFrame).then(()=>{
+							console.debug("Import data", eFrame);
+							Aθεος.Freyja.QueryChild(eFrame.contentWindow, "Import", archivedata.MimeType, archivedata.Payload)
+							    .catch((err)=>console.warn("Import error", err));
+								;
+						})
+						.catch((err) => console.warn("import fail", err))
+						;
+					});
+
+				}
+
 			});
 		}
 
@@ -124,7 +158,20 @@ const initgame = _.once(function ()
 		{
 			console.debug("import slides", rg);
 
-			rg.forEach(es => this.DoAddElement(generateElement(...es)));
+			rg.forEach(([type, txt]) => {
+
+				if(type === typeMagicIFrame)
+				{
+					const archivedata = txt;
+					const url = Aθεος.Αφροδίτη.GenerateNewInstanceURL(location.protocol + "//" + archivedata.Source);
+
+					this.rgPendingMagicFrames[url] = archivedata;
+					txt = url;
+					type = "iframe";
+				}
+
+				this.patched_AddType(type, txt);
+			});
 		}
 
 		Export()
@@ -135,8 +182,7 @@ const initgame = _.once(function ()
 
 			const rgp = this.grid.getItems().map(function (item, i)
 			{
-				const e = item.getElement().querySelector('.card-content').firstElementChild;
-				console.debug(i, e);
+				const e = extractContentElement(item.getElement());
 
 				return e.PeleExportPromise();
 			});
@@ -259,7 +305,7 @@ const initgame = _.once(function ()
 
 			e.PeleExportPromise = () =>
 			Aθεος.Freyja.QueryChild(e.contentWindow, "Export")
-				.then(data => Promise.resolve(["magic.iframe", JSON.parse(data)]))
+				.then(data => Promise.resolve([typeMagicIFrame, JSON.parse(data)]))
 				.catch(() => Promise.resolve([type, txt]))
 			;
 
@@ -280,8 +326,8 @@ const initgame = _.once(function ()
 					e.PeleExportPromise = () => Promise.resolve([type, txt]);
 				}
 				break;
-
-			case "magic.iframe":
+/*
+			case typeMagicIFrame:
 				{
 					const archivedata = txt;
 
@@ -303,7 +349,7 @@ const initgame = _.once(function ()
 
 				}
 				break;
-
+*/
 			case "iframe": // hackhack: Make this more restrictive and secure
 				{
 					const e = CreateIFrame(txt);
