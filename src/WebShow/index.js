@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { KookData } from "../BatMan/KookData";
 import { elementMatches, elementClosest } from '../BatMan/elementSelect';
 import { KeyBufferCommander } from '../BatMan/KeyBufferCommander';
+import { arc } from 'd3';
 
 const initgame = _.once(function ()
 {
@@ -24,6 +25,7 @@ const initgame = _.once(function ()
 	{
 		return elementMatches(el, '.card-op-wake');
 	}
+
 
 	class MyMurriSlideShow extends Pele.MuuriSlideShow
 	{
@@ -54,13 +56,14 @@ const initgame = _.once(function ()
 
 		DoAddText(txt)
 		{
-			const e = generateElement(txt);
+			const e = generateElement(...KookData(txt));
 			this.DoAddElement(e);
-			e._pele_export_data = txt;
 		}
 
-		ExportData(e)
+		ExportData(eContent)
 		{
+			const e = eContent.querySelector(".card-content").firstElementChild;
+
 			const rg = [
 				["text/plain", e._pele_export_data]
 			];
@@ -116,6 +119,31 @@ const initgame = _.once(function ()
 			this.SlideUnzoom();
 			this.ExitEditMode()
 		}
+
+		Import(rg)
+		{
+			console.debug("import slides", rg);
+
+			rg.forEach(es => this.DoAddElement(generateElement(...es)));
+		}
+
+		Export()
+		{
+			//return Promise.resolve([MimeTypeForEvents, this.Server.Export()]) ;
+
+			console.debug("Export slides");
+
+			const rgp = this.grid.getItems().map(function (item, i)
+			{
+				const e = item.getElement().querySelector('.card-content').firstElementChild;
+				console.debug(i, e);
+
+				return e.PeleExportPromise();
+			});
+
+			return Promise.all(rgp);
+
+		}
 	}
 
 
@@ -123,6 +151,8 @@ const initgame = _.once(function ()
 		{
 			ID: "coolslides"
 		}, this);
+
+	this.slideshow = slideshow;
 
 	window.DoNext = () => slideshow.SlideNext();
 	window.DoPrevious = () => slideshow.SlidePrevious();
@@ -138,7 +168,7 @@ const initgame = _.once(function ()
 		switch (cmd)
 		{
 			case "Mediaplayer.Control.Directive":
-				Aθεος.Freyja.Children().forEach(child=>Aθεος.Freyja.QueryChild(child, cmd, ...data));				
+				Aθεος.Freyja.Children().forEach(child => Aθεος.Freyja.QueryChild(child, cmd, ...data));
 				//responder.Success();
 				break;
 		}
@@ -217,6 +247,25 @@ const initgame = _.once(function ()
 	{
 		const eNav = eNavigationTemplate.cloneNode(true);
 
+		function CreateIFrame(src)
+		{
+			const e = document.createElement("iframe");
+			e.setAttribute("allow", "camera;microphone");
+			e.setAttribute("src", src);
+			eContent.appendChild(e);
+			eContent.appendChild(eCardOpsTemplate.cloneNode(true));
+
+			e._pele_export_data = src;
+
+			e.PeleExportPromise = () =>
+			Aθεος.Freyja.QueryChild(e.contentWindow, "Export")
+				.then(data => Promise.resolve(["magic.iframe", JSON.parse(data)]))
+				.catch(() => Promise.resolve([type, txt]))
+			;
+
+			return e;
+		}
+
 		switch (type)
 		{
 			case "img":
@@ -224,29 +273,52 @@ const initgame = _.once(function ()
 					const e = document.createElement("div");
 					e.classList.add("pele-responsive_image_container");
 					e.style.backgroundImage = `url(${txt})`;
-
 					removeElement(eNav.querySelector(".card-op-sleep"));
 					eContent.appendChild(e);
+
+					e._pele_export_data = txt;
+					e.PeleExportPromise = () => Promise.resolve([type, txt]);
+				}
+				break;
+
+			case "magic.iframe":
+				{
+					const archivedata = txt;
+
+					const e = CreateIFrame(location.protocol + "//" + archivedata.Source);
+
+					e.addEventListener("load", ()=>{
+						Aθεος.Freyja.OnReadyChild(e).then(()=>{
+							console.debug("Import data", e);
+							Aθεος.Freyja.QueryChild(e.contentWindow, "Import", archivedata.MimeType, archivedata.Payload)
+							    .catch((err)=>console.warn("Import error", err));
+							Aθεος.Freyja.QueryChild(e.contentWindow, "GetURL")
+									.then(url => {console.debug("GetURL", url); e._pele_export_data = url;} )
+									//.catch(() => Promise.resolve([type, txt]))
+								;
+						})
+						.catch((err) => console.warn("import fail", err))
+						;
+					});
+
 				}
 				break;
 
 			case "iframe": // hackhack: Make this more restrictive and secure
 				{
-					const e = document.createElement("iframe");
-					e.setAttribute("allow", "camera;microphone");
-					e.setAttribute("src", txt);
-					eContent.appendChild(e);
-					eContent.appendChild(eCardOpsTemplate.cloneNode(true));
+					const e = CreateIFrame(txt);
 				}
 				break;
 
 			default:
 				{
-
 					const e = document.createElement("iframe");
 					e.setAttribute("srcdoc", txt);
 					eContent.appendChild(e);
 					eContent.appendChild(eCardOpsTemplate.cloneNode(true));
+
+					e._pele_export_data = txt;
+					e.PeleExportPromise = () => Promise.resolve([type, txt]);
 				}
 				break;
 		}
@@ -254,7 +326,7 @@ const initgame = _.once(function ()
 		eContent.appendChild(eNav);
 	}
 
-	function generateElement(txt)
+	function generateElement(type, txt)
 	{
 		const id = ++uuid;
 		const title = id;
@@ -265,7 +337,7 @@ const initgame = _.once(function ()
 
 		const eContent = itemElem.querySelector(".card-content");
 
-		createslide(eContent, ...KookData(txt));
+		createslide(eContent, type, txt);
 
 		itemElem.querySelector(".card-id").innerHTML = id;
 		return itemElem;
@@ -273,6 +345,9 @@ const initgame = _.once(function ()
 
 
 });
+
+const MimeTypeForContainer = "application/x-magicusers-list";
+
 
 class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 {
@@ -288,6 +363,21 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 
 	}
 
+	Import(type, data)
+	{
+		if (type === MimeTypeForContainer)
+		{
+			//this.Server.Import(data);
+			this.slideshow.Import(data);
+		}
+	}
+
+	Export()
+	{
+		//return Promise.resolve([MimeTypeForEvents, this.Server.Export()]) ;
+
+		return this.slideshow.Export().then(rg => [MimeTypeForContainer, rg]);
+	}
 
 	OnInit()
 	{
