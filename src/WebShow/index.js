@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { KookData } from "../BatMan/KookData";
 import { elementMatches, elementClosest } from '../BatMan/elementSelect';
 import { KeyBufferCommander } from '../BatMan/KeyBufferCommander';
-import { arc } from 'd3';
+//import { arc } from 'd3';
 
 const initgame = _.once(function ()
 {
