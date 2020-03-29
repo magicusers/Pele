@@ -1,0 +1,148 @@
+$Aταλάντη_zIndex: 10;
+
+// Thank you togehterjs
+
+/* Arrows for pointing */
+
+.Aταλάντη-arrow {
+	position: absolute;
+	border: 2px solid #f00;
+	z-index: #{$Aταλάντη_zIndex + 10};
+	padding: 0;
+	margin: 0;
+	transform-origin: top left;
+}
+
+.Aταλάντη-chat-message.Aταλάντη-arrow-message {
+	border: 2px solid #f00;
+}
+
+/* Shared cursors */
+
+.Aταλάντη-cursor svg {
+	filter: drop-shadow(1px 3px 2px rgba(0, 0, 0, 0.3));
+	transform: rotate(-10deg);
+}
+
+.Aταλάντη-cursor-img {
+	position: relative;
+	top: 0;
+}
+
+.Aταλάντη-cursor img {
+	width: 20px;
+	filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.2));
+}
+
+.Aταλάντη-cursor {
+	position: absolute;
+	z-index: #{$Aταλάντη_zIndex - 1};
+	font-size: 28px;
+	font-weight: bolder;
+	/* This magic CSS rule makes this element basically invisible to clicks/etc:
+	(good on all but IE: http://caniuse.com/pointer-events */
+	pointer-events: none;
+
+	&.Aταλάντη-notalive {
+		display: none;
+	}
+
+	&:hover {
+		cursor: pointer;
+	}
+
+	> svg
+	{
+		position: absolute;
+	}
+	
+	/*FIXME: maybe these should use position: fixed so the cursor
+	stays stuck to the top of the screen until the appropriate time
+	(when .Aταλάντη-scrolled-above/below is removed)?*/
+	&.Aταλάντη-scrolled-above {
+		position: fixed;
+
+		svg {
+			transition-duration: 0.8s;
+			transition-property: transform;
+			transform: rotate(20deg);
+		}
+
+		.Aταλάντη-cursor-down {
+			display: none;
+		}
+	}
+
+	&.Aταλάντη-scrolled-below {
+		position: fixed;
+
+		svg {
+			transition-duration: 0.8s;
+			transition-property: transform;
+			transform: rotate(-150deg);
+		}
+
+		.Aταλάντη-cursor-up {
+			display: none;
+		}
+	}
+
+	&.Aταλάντη-scrolled-normal {
+		svg {
+			transition-duration: 0.8s;
+			transition-property: transform;
+			transform: rotate(-10deg);
+		}
+
+		.Aταλάντη-cursor-up,
+		.Aταλάντη-cursor-down {
+			display: none;
+		}
+	}
+
+	.Aταλάντη-cursor-container {
+		opacity: 0.9;
+		white-space: nowrap;
+		// font-family: @default-font;
+		font-size: 40%;
+		position: relative;
+		top: 5px;
+		left: 15px;
+		padding: 8px;
+		border-radius: 4px;
+		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+		border: 1px solid rgba(0, 0, 0, 0.2);
+		box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.50);
+	}
+}
+
+
+$start-click: 10px;
+$end-click: 111px;
+
+.Aταλάντη-click {
+	position: absolute;
+	z-index: #{$Aταλάντη_zIndex - 2};
+	pointer-events: none;
+	width: $start-click;
+	height: $start-click;
+	margin: #{-$start-click/2} 0 0 #{-$start-click/2};
+	border-radius: #{$start-click};
+	border: #{$start-click/2} solid rgba(288, 58, 41, 1);
+	opacity: 1;
+	transition: all ease-in-out 2s;
+
+	//.transition(~"width 2s, height 2s, margin 2s, border 2s");
+
+	// This class is immediately applied for the purpose of transitioning:
+	&.Aταλάντη-clicking {
+		width: $end-click;
+		height: $end-click;
+		margin: #{-$end-click/2} 0 0 #{-$end-click/2};
+		border-radius: #{$end-click};
+		border: 0px solid rgba(0, 0, 0, 0);
+		opacity: 0.1;
+	}
+
+
+}

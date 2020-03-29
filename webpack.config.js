@@ -8,6 +8,36 @@ const os = require('os');
 
 var webpack = require('webpack');
 
+function getAllSubfolders(folderpath)
+{
+	return fs.readdirSync(path.resolve(__dirname, folderpath))
+		.reduce(function (rg, item)
+		{
+			const path = `${folderpath}/${item}`;
+			const isDir = fs.lstatSync(path).isDirectory();
+			if (isDir)
+			{
+				rg.push(path);
+			}
+			return rg;
+		}, [])
+		;
+}
+function getAllMatchingFiles(folderpath, re_basefile)
+{
+	return fs.readdirSync(path.resolve(__dirname, folderpath))
+		.reduce(function (rg, item)
+		{
+			const path = `${folderpath}/${item}`;
+			const isDir = fs.lstatSync(path).isDirectory();
+			if (!isDir && item.match(re_basefile))
+			{
+				rg.push(path);
+			}
+			return rg;
+		}, [])
+		;
+}
 
 function getSubpagesInFolder(folderpath, re_basefile)
 {
@@ -38,7 +68,7 @@ function makelibconfig(argv)
 	const isDevelopment = (argv.mode === 'development');
 	const comm = makecommonconfig(argv);
 
-	const libentryfiles = getSubpagesInFolder('src', /^(?!index).*\.js$/i).reduce((o, page) => ({ ...o, [page.replace("src/", "").replace(".js", "")]: "./" + page }), {});
+	const libentryfiles = getAllMatchingFiles('src', /^(?!index).*\.js$/i).reduce((o, page) => ({ ...o, [page.replace("src/", "").replace(".js", "")]: "./" + page }), {});
 	console.log("libentryfiles", libentryfiles);
 
 	const config =
@@ -91,11 +121,13 @@ function makehtmlconfig(argv)
 	const comm = makecommonconfig(argv);
 
 	const htmlfiles = getSubpagesInFolder('src', /.*\.html$/i);
-	const entryfiles = getSubpagesInFolder('src', /index\.js/i).reduce((o, page) => ({ ...o, [page.replace("src/", "").replace(".js", "")]: "./" + page }), {});
+	const entryfiles = getAllSubfolders('src').reduce((rg, folder)=>rg.concat(getAllMatchingFiles(folder, /\.js$/i)), []).reduce((o, page) => ({ ...o, [page.replace("src/", "").replace(".js", "")]: "./" + page }), {});
+	//const entryfiles = getSubpagesInFolder('src', /index\.js/i).reduce((o, page) => ({ ...o, [page.replace("src/", "").replace(".js", "")]: "./" + page }), {});
+	const themefiles = getSubpagesInFolder('src', /^(?!index).*\.scss$/i).reduce((o, page) => ({ ...o, [page.replace("src/", "").replace(".scss", "")]: "./" + page }), {});
 
 	console.log("htmlfiles", htmlfiles);
 	console.log("entry", entryfiles);
-
+	console.log("themefiles", themefiles);
 
 	function scripttag(src)
 	{
@@ -131,6 +163,7 @@ function makehtmlconfig(argv)
 			["URL_VIDEOJS_LIBRARY", null, "https://unpkg.com/video.js/dist/video.min.js"],
 			["URL_VIDEOJS_CSS", null, "https://unpkg.com/video.js/dist/video-js.min.css"],
 			["URL_VIDEOJS_PLUGIN_YOUTUBE_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.6.1/Youtube.min.js"],			
+			["URL_INTERACTJS_LIBRARY", null, "https://cdn.jsdelivr.net/npm/interactjs@1.9.7/dist/interact.min.js"],		
 		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(scripttag(isDevelopment ? e[1] : e[2])) }), {}),
 		...[
 		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(isDevelopment ? e[1] : e[2]) }), {}),
@@ -144,7 +177,7 @@ function makehtmlconfig(argv)
 	const config =
 	{
 		...comm,
-		entry: entryfiles,
+		entry: {...themefiles, ...entryfiles},
 		output: {
 			path: path.resolve(__dirname, "dist")
 		},
@@ -195,7 +228,8 @@ function makecommonconfig(argv)
 					"d3": "d3",
 					"Muuri": "Muuri",
 					"lodash": '_',
-					"videojs":"videojs"
+					"videojs":"videojs",
+					"interactjs":"interactjs"
 				})
 		},
 		devServer: {

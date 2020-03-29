@@ -3,8 +3,10 @@ import './index.scss';
 import _ from 'lodash';
 
 import { KookData } from "../BatMan/KookData";
-import { elementMatches, elementClosest } from '../BatMan/elementSelect';
 import { KeyBufferCommander } from '../BatMan/KeyBufferCommander';
+
+import {removeElement, extractTemplateElement, elementMatches, elementClosest} from '../BatMan/elementary';
+
 //import { arc } from 'd3';
 
 const initgame = _.once(function ()
@@ -269,20 +271,6 @@ const initgame = _.once(function ()
 				break;
 		}
 	});
-
-	function removeElement(e)
-	{
-		e.parentElement.removeChild(e);
-	}
-
-	function extractTemplateElement(id)
-	{
-		const e = document.getElementById(id);
-		removeElement(e);
-		e.removeAttribute("id", e);
-
-		return e;
-	}
 
 
 	const eCardOpsTemplate = extractTemplateElement("idTemplateCardOperations");

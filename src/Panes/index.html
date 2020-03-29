@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>Magic Panes</title>
+
+
+	<%= URL_LODASH_LIBRARY %>
+	<%= URL_WEB_ANIMATIONS_LIBRARY %>
+	<%= URL_INTERACTJS_LIBRARY %>
+
+	<script src="//<%= HOST_ATHEOS_LIBRARY %>/atheos/afrodite.js"></script>
+	<link rel="stylesheet" href="//<%= HOST_ATHEOS_LIBRARY %>/atheos/themes/container.dark.css">
+</head>
+
+<body>
+	<div style="display:none">
+		<!-- Template Definitions -->
+
+		<div id="idTemplateCardOperations" class="card-operations flex-centered-content fill-container">
+			<button class="card-op-sleep">💤 Sleep</button>
+			<button class="card-op-wake">☀ Wake</button>
+		</div>
+
+		<div id="idTemplateNavigation" class="navigation-bar">
+			<button class="card-op-Previous">☜ Previous</button>
+			<button class="card-op-ExitFullScreen">⚽ Exit Show</button>
+			<button class="card-op-sleep">💤 Sleep</button>
+			<button class="card-op-Next">Next ☞</button>
+		</div>
+
+		<div id="idTemplatePane" class="pele_pane">
+			<div class="pele_title">
+				<span class="card-text"></span>
+				<span class="card-ops"> 
+					<button class="card-op-Lock" title="Lock">🔒</button>
+					<button class="card-op-Unlock"  title="Unlock">🔓</button>
+					<button class="card-op-Rotate" title="Rotate">🔃</button>
+					<button class="card-op-GoFullScreen" title="Fullscreen">⚽</button>
+					<button class="card-op-sleep" title="Sleep">💤</button>
+					<button class="card-op-Close">×</button>
+				</span>
+	<!-- 			<div class="card-remove"></div> -->
+			</div>
+			<div class="pele_content"></div>
+
+			<div class="pele_resize_border pele_resize_border_top"></div>
+			<div class="pele_resize_border pele_resize_border_right"></div>
+			<div class="pele_resize_border pele_resize_border_bottom"></div>
+			<div class="pele_resize_border pele_resize_border_left"></div>
+		</div>
+
+	</div>
+
+
+	<div id="idTopMenu">
+		<div id="idMagicUsersContainer" title="Tap for more online juice"></div>
+	</div>
+	<div id="painMain" class="interactContainer">
+	</div>
+
+</body>
+
+</html>
