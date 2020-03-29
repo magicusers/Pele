@@ -137,7 +137,10 @@ class Pane
 
 	Resize(x, y, W, H)
 	{
-		// update the element's style
+		this._savedW = W;
+		this._savedH = H;
+
+	// update the element's style
 		this.element.style.width = W + 'px';
 		this.element.style.height = H + 'px';
 
@@ -163,6 +166,31 @@ class Pane
 		else
 			this.element.classList.remove("pele_tranform_lock");
 	}
+
+	SetZoomState(fState)
+	{
+		if (fState)
+		{
+			this.element.classList.add("pele_zoomedin");
+			this.element.style.transform=null;
+			this.element.style.width=null;
+			this.element.style.height=null;
+		}
+		else
+		{
+			this.element.classList.remove("pele_zoomedin");
+			this.Resize(this.PositionX, this.PositionY, this._savedW, this._savedH);
+		}
+	}
+
+
+	Delete()
+	{
+		removeElement(this.element);
+		this.manager.BringToFront(this.manager.FrontPane());
+	}
+
+
 
 	constructor(manager, data)
 	{
@@ -253,12 +281,32 @@ class Pane
 			.on("click", (event) =>
 			{
 				manager.ActionSetTransformLock(Pane.FromElement(event.target).GetDataId(), true);
-			})
+			});
 		interact(this.element.querySelector(".card-op-Unlock"))
 			.on("click", (event) =>
 			{
 				manager.ActionSetTransformLock(Pane.FromElement(event.target).GetDataId(), false);
-			})
+			});
+
+
+		interact(this.element.querySelector(".card-op-GoFullScreen"))
+			.on("click", (event) =>
+			{
+				manager.ActionSetZoomState(Pane.FromElement(event.target).GetDataId(), true);
+			});
+		interact(this.element.querySelector(".card-op-Unzoom"))
+			.on("click", (event) =>
+			{
+				manager.ActionSetZoomState(Pane.FromElement(event.target).GetDataId(), false);
+			});
+
+		interact(this.element.querySelector(".card-op-Close"))
+			.on("click", (event) =>
+			{
+				manager.ActionDelete(Pane.FromElement(event.target).GetDataId());
+			});
+
+
 
 		interact(this.element.querySelector(".card-op-Rotate"))
 			.draggable({
@@ -458,7 +506,6 @@ class PaneManager
 
 			textdatadrop.call(this, event, data);
 		});
-
 	}
 
 	All()
@@ -471,40 +518,52 @@ class PaneManager
 		return Pane.FromElement(this.Container.querySelector("[data-pele-id='" + id + "']"));
 	}
 
+	FrontPane()
+	{
+		try
+		{
+			return this.All().reduce((f, e) => f.zIndex > e.zIndex ? f : e);
+		}
+		catch (err)
+		{ }
+	}
 
 	BringToFront(pane)
 	{
-		const currentActive = Pane.FindActive(this.Container);
-
-		if (currentActive != pane)
+		if (pane)
 		{
-			let newindex;
-			if (currentActive)
+			const currentActive = Pane.FindActive(this.Container);
+
+			if (currentActive != pane)
 			{
-				newindex = currentActive.zIndex;
-				currentActive.OnDeactivate();
-
-				if (pane.zIndex)
+				let newindex;
+				if (currentActive)
 				{
-					const baseindex = pane.zIndex;
+					newindex = currentActive.zIndex;
+					currentActive.OnDeactivate();
 
-					this.All().forEach(p =>
+					if (pane.zIndex)
 					{
-						if (p.zIndex > baseindex)
-							--p.zIndex;
-					});
+						const baseindex = pane.zIndex;
+
+						this.All().forEach(p =>
+						{
+							if (p.zIndex > baseindex)
+								--p.zIndex;
+						});
+					}
+					else
+						++newindex;
 				}
 				else
-					++newindex;
-			}
-			else
-			{
-				newindex = this.Container.children.length;
-			}
+				{
+					newindex = this.Container.children.length;
+				}
 
-			console.debug("new z=", newindex);
-			pane.zIndex = newindex;
-			pane.OnActivate();
+				console.debug("new z=", newindex);
+				pane.zIndex = newindex;
+				pane.OnActivate();
+			}
 		}
 	}
 
@@ -512,6 +571,15 @@ class PaneManager
 	DoAddText(txt)
 	{
 		const pane = new Pane(this, txt);
+
+		const windowcount = this.Container.children.length;
+		const gridwidth=42;
+		const r = this.Container.getBoundingClientRect();
+		const nx = r.width/(2*gridwidth);
+		const ny = r.height/(2*gridwidth);
+
+		pane.Resize((windowcount%nx)*gridwidth, (windowcount%ny)*gridwidth, r.width/2, r.height/2 );
+
 		this.BringToFront(pane);
 	}
 
@@ -546,19 +614,22 @@ class PaneManager
 		this.Action("DoSetTransformLock", ...arguments);
 	}
 
+	ActionSetZoomState()
+	{
+		this.Action("DoSetZoomState", ...arguments);
+	}
+
+	ActionDelete()
+	{
+		this.Action("DoDelete", ...arguments);
+	}
+
 
 	Action(cmd, ...args)
 	{
 		function doAdd(txt)
 		{
 			this.DoAddText(txt);
-		}
-
-		function doDelete(id, envelope)
-		{
-			const e = this.ItemFromId(id) || this.findChosenItem();
-
-			removeItem.call(this, e, envelope);
 		}
 
 		function doMoveTo(id, ...args)
@@ -580,9 +651,18 @@ class PaneManager
 			this.PaneFromDataId(id).BringToFront(...args);
 		}
 
+		function doDelete(id, ...args)
+		{
+			this.PaneFromDataId(id).Delete(...args);
+		}
+
 		function doSetTransformLock(id, ...args)
 		{
 			this.PaneFromDataId(id).SetTransformLock(...args);
+		}
+		function doSetZoomState(id, ...args)
+		{
+			this.PaneFromDataId(id).SetZoomState(...args);
 		}
 
 		function doZoom(id)
@@ -606,6 +686,8 @@ class PaneManager
 			case "DoResize": doResize.apply(this, args); break;
 			case "DoBringToFront": doBringToFront.apply(this, args); break;
 			case "DoSetTransformLock": doSetTransformLock.apply(this, args); break;
+			case "DoSetZoomState":doSetZoomState.apply(this, args); break;
+			case "DoDelete": doDelete.apply(this, args); break;
 			case "SetIframeActiveState": doIframe.apply(this, args); break;
 		}
 	}
