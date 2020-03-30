@@ -10,7 +10,7 @@ import { removeElement, extractTemplateElement, elementMatches, elementClosest }
 import interact from 'interactjs';
 
 
-
+const typeMagicIFrame = "magic.iframe";
 const MimeTypeForContainer = "application/x-magicusers-list";
 
 const ePaneTemplate = extractTemplateElement("idTemplatePane");
@@ -115,6 +115,12 @@ let uuid = 0;
 
 class Pane
 {
+	get PeleExportPromise()
+	{
+		const e = this.element.querySelector('.pele_content').firstElementChild;
+		return e.PeleExportPromise;
+	}
+
 	UpdateTransform()
 	{
 		let transform = 'translate(' + this.PositionX + 'px,' + this.PositionY + 'px)';
@@ -195,6 +201,10 @@ class Pane
 		}
 	}
 
+	IsZoomed()
+	{
+		return this.element.classList.contains("pele_zoomedin");
+	}
 
 	SetZoomState(fState)
 	{
@@ -221,12 +231,17 @@ class Pane
 
 
 
-	constructor(manager, data)
+	constructor(manager, data, type)
 	{
 		this.element = ePaneTemplate.cloneNode(true);
 		this.element.setAttribute("data-pele-id", ++uuid);
 
-		createslide(this.element.querySelector(".pele_content"), ...KookData(data));
+		const eContent = this.element.querySelector(".pele_content");
+		if (type)
+			createslide(eContent, type, data);
+		else
+			createslide(eContent, ...KookData(data));
+				
 
 		if (this.IFrameElement())
 			this.element.classList.add("pele_sleepingagent");
@@ -334,17 +349,17 @@ class Pane
 		);
 
 
+		function togglezoom(event)
+		{
+			manager.ActionSetZoomState(Pane.FromElement(event.target).GetDataId(), !this.IsZoomed());
+		}
 
 		interact(this.element.querySelector(".card-op-GoFullScreen"))
-			.on("click", (event) =>
-			{
-				manager.ActionSetZoomState(Pane.FromElement(event.target).GetDataId(), true);
-			});
+			.on("click", togglezoom.bind(this));
 		interact(this.element.querySelector(".card-op-Unzoom"))
-			.on("click", (event) =>
-			{
-				manager.ActionSetZoomState(Pane.FromElement(event.target).GetDataId(), false);
-			});
+			.on("click", togglezoom.bind(this));
+		interact(this.element.querySelector(".pele_title"))
+			.on("dblclick", togglezoom.bind(this));
 
 		interact(this.element.querySelector(".card-op-Close"))
 			.on("click", (event) =>
@@ -385,6 +400,7 @@ class Pane
 			.on("dblclick", (event) =>
 			{
 				manager.ActionRotate(Pane.FromElement(event.target).GetDataId(), 0);
+				event.stopPropagation();
 			})
 
 		function getDragAngle(event)
@@ -505,7 +521,7 @@ class PaneManager
 	{
 		this.Container = container;
 
-
+		this.rgPendingMagicFrames= {};
 		function onClick(event)
 		{
 			const e = event.target;
@@ -614,9 +630,9 @@ class PaneManager
 	}
 
 
-	DoAddText(txt)
+	DoAddText(txt, type)
 	{
-		const pane = new Pane(this, txt);
+		const pane = new Pane(this, txt, type);
 
 		const windowcount = this.Container.children.length;
 		const gridwidth = 42;
@@ -627,8 +643,29 @@ class PaneManager
 		pane.Resize((windowcount % nx) * gridwidth, (windowcount % ny) * gridwidth, r.width / 2, r.height / 2);
 
 		this.BringToFront(pane);
-	}
+		
+		if (type === "iframe" && (txt in this.rgPendingMagicFrames))
+		{
+			const url = txt;
+			const archivedata = this.rgPendingMagicFrames[url];
+			delete this.rgPendingMagicFrames[url];
 
+			const eFrame = pane.IFrameElement();
+			
+			eFrame.addEventListener("load", ()=>{
+				Aθεος.Freyja.OnReadyChild(eFrame).then(()=>{
+					console.debug("Import data", eFrame);
+					Aθεος.Freyja.QueryChild(eFrame.contentWindow, "Import", archivedata.MimeType, archivedata.Payload)
+						.catch((err)=>console.warn("Import error", err));
+						;
+				})
+				.catch((err) => console.warn("import fail", err))
+				;
+			});
+
+		}	
+
+	}
 
 	ActionAddText()
 	{
@@ -678,9 +715,9 @@ class PaneManager
 
 	Action(cmd, ...args)
 	{
-		function doAdd(txt)
+		function doAdd(...args)
 		{
-			this.DoAddText(txt);
+			this.DoAddText(...args);
 		}
 
 		function doMoveTo(id, ...args)
@@ -749,7 +786,59 @@ class PaneManager
 			case "SetIframeActiveState": doIframe.apply(this, args); break;
 		}
 	}
+	
+	Export()
+	{
+		//return Promise.resolve([MimeTypeForEvents, this.Server.Export()]) ;
+
+		console.debug("Export slides");
+
+		const rgp = this.All().map(function (pane, i)
+		{
+			return pane.PeleExportPromise();
+		});
+
+		return Promise.all(rgp);
+
+	}	
+	
+
+	Import(rg)
+	{
+		console.debug("import slides", rg);
+
+		rg.forEach(([type, txt]) => {
+
+			if(type === typeMagicIFrame)
+			{
+				const archivedata = txt;
+				const url = Aθεος.Αφροδίτη.GenerateNewInstanceURL(location.protocol + "//" + archivedata.Source);
+
+				this.rgPendingMagicFrames[url] = archivedata;
+
+				txt = url;
+				type = "iframe";
+			}
+
+			this.ActionAddText(txt, type);
+		});
+	}
+
 }
+
+
+Aθεος.Freyja.AddHandler(function (responder, cmd, ...data)
+{
+	console.debug("Freyja IPC", cmd, ...data);
+	switch (cmd)
+	{
+		case "Mediaplayer.Control.Directive":
+			Aθεος.Freyja.Children().forEach(child => Aθεος.Freyja.QueryChild(child, cmd, ...data));
+			//responder.Success();
+			break;
+	}
+});
+
 
 class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 {
@@ -771,6 +860,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 				{
 					this.original_Action(...args, envelope);
 				}.bind(this));
+
 			}
 
 			Action()
@@ -783,6 +873,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 				super.Action(...arguments);
 			}
 
+		
 		}
 
 		this.paneManager = new MyPaneManager(this, document.getElementById("painMain"));
@@ -802,7 +893,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 	{
 		//return Promise.resolve([MimeTypeForEvents, this.Server.Export()]) ;
 
-		//return this.slideshow.Export().then(rg => [MimeTypeForContainer, rg]);
+		return this.paneManager.Export().then(rg => [MimeTypeForContainer, rg]);
 	}
 
 	OnInit()
