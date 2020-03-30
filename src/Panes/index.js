@@ -118,7 +118,21 @@ class Pane
 	get PeleExportPromise()
 	{
 		const e = this.element.querySelector('.pele_content').firstElementChild;
-		return e.PeleExportPromise;
+
+		const dim={
+			x:this.PositionX,
+			y:this.PositionY,
+			a:this.PositionAngle,
+			H:this._savedH,
+			W:this._savedW
+		}
+		return function()
+		{
+			return e.PeleExportPromise().then(([type, txt])=>{
+				return Promise.resolve([type, txt, dim]);
+			})
+
+		}
 	}
 
 	UpdateTransform()
@@ -630,9 +644,10 @@ class PaneManager
 	}
 
 
-	DoAddText(txt, type)
+	DoAddText(txt, type, dim)
 	{
 		const pane = new Pane(this, txt, type);
+
 
 		const windowcount = this.Container.children.length;
 		const gridwidth = 42;
@@ -640,8 +655,16 @@ class PaneManager
 		const nx = r.width / (2 * gridwidth);
 		const ny = r.height / (2 * gridwidth);
 
-		pane.Resize((windowcount % nx) * gridwidth, (windowcount % ny) * gridwidth, r.width / 2, r.height / 2);
-
+		if (dim && dim.W && dim.H)
+		{
+			pane.Resize(dim.x, dim.y, dim.W, dim.H);
+			pane.Rotate(dim.a);
+		}
+		else
+		{
+			pane.Resize((windowcount % nx) * gridwidth, (windowcount % ny) * gridwidth, r.width / 2, r.height / 2);
+		}
+	
 		this.BringToFront(pane);
 		
 		if (type === "iframe" && (txt in this.rgPendingMagicFrames))
@@ -807,7 +830,7 @@ class PaneManager
 	{
 		console.debug("import slides", rg);
 
-		rg.forEach(([type, txt]) => {
+		rg.forEach(([type, txt, dim]) => {
 
 			if(type === typeMagicIFrame)
 			{
@@ -820,7 +843,7 @@ class PaneManager
 				type = "iframe";
 			}
 
-			this.ActionAddText(txt, type);
+			this.ActionAddText(txt, type, dim);
 		});
 	}
 

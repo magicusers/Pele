@@ -106,23 +106,20 @@ body {
 	//border: thin dotted $theme-color-primary;
 }
 
-.pele_pane.pele_pane_active
-{
+.pele_pane.pele_pane_active {
 	.pele_resize_border {
 		opacity: 0.6666;
 	}
 
-	.pele_content
-	{
-		>iframe
-		{
+	.pele_content {
+		>iframe {
 			pointer-events: unset;
 		}
-	}		
+	}
 }
 
 
- 
+
 
 .pele_zoomedin {
 	width: 100%;
@@ -268,7 +265,7 @@ body {
 .card-operations {
 	display: none;
 
-	font-size:2rem;
+	font-size: 2rem;
 
 	.pele_sleepingagent.pele_sleeping & {
 		display: flex;
@@ -343,20 +340,31 @@ body {
 }
 
 .card-op-sleep {
-	display: unset;
-
-	.pele_sleeping & {
-		display: none;
-	}
+	display: none;
 }
 
 .card-op-wake {
 	display: none;
+}
 
-	.pele_sleeping & {
+.pele_sleepingagent {
+
+	.card-op-sleep {
 		display: unset;
+
+	}
+
+	&.pele_sleeping {
+		.card-op-wake {
+			display: unset;
+		}
+
+		.card-op-sleep {
+			display: none;
+		}
 	}
 }
+
 
 .navigation-bar {
 	position: fixed;
@@ -434,22 +442,6 @@ body {
 	}
 
 	.card-op-Unlock {
-		display: unset;
-	}
-
-}
-
-
-.card-op-wake {
-	display: none;
-}
-
-.pele_sleeping {
-	.card-op-sleep {
-		display: none;
-	}
-
-	.card-op-wake {
 		display: unset;
 	}
 
