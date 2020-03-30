@@ -113,6 +113,8 @@ export function KookData(txt)
 
 		if (!datatype)
 		{
+			datatype = "iframe";
+
 			const url = new URL(txt);
 			const fileprefix = txt.split('#').shift().split('?').shift().split('/').pop().split(".").pop();
 
@@ -126,8 +128,6 @@ export function KookData(txt)
 					datatype = "video";
 				else if (mimetype.match(/audio.*/))
 					datatype = "audio"
-				else
-					datatype = "iframe";
 			}
 		}
 	}

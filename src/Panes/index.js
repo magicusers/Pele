@@ -47,21 +47,14 @@ function createslide(eContent, type, txt)
 {
 	const eNav = eNavigationTemplate.cloneNode(true);
 
-	function CreateIFrame(src)
+	function createiframe(eContent, txt)
 	{
 		const e = document.createElement("iframe");
-		e.setAttribute("allow", "camera;microphone");
-		e.setAttribute("src", src);
+
+		e._pele_export_data = txt;
 		eContent.appendChild(e);
+
 		eContent.appendChild(eCardOpsTemplate.cloneNode(true));
-
-		e._pele_export_data = src;
-
-		e.PeleExportPromise = () =>
-			Aθεος.Freyja.QueryChild(e.contentWindow, "Export")
-				.then(data => Promise.resolve([typeMagicIFrame, JSON.parse(data)]))
-				.catch(() => Promise.resolve([type, txt]))
-			;
 
 		return e;
 	}
@@ -83,7 +76,19 @@ function createslide(eContent, type, txt)
 
 		case "iframe": // hackhack: Make this more restrictive and secure
 			{
-				const e = CreateIFrame(txt);
+				const src = txt;
+				const e = createiframe(eContent);
+
+				e.setAttribute("allow", "camera;microphone");
+				e.setAttribute("src", src);
+
+
+				e.PeleExportPromise = () =>
+					Aθεος.Freyja.QueryChild(e.contentWindow, "Export")
+						.then(data => Promise.resolve([typeMagicIFrame, JSON.parse(data)]))
+						.catch(() => Promise.resolve([type, txt]))
+					;
+
 			}
 			break;
 
@@ -94,12 +99,9 @@ function createslide(eContent, type, txt)
 
 		default:
 			{
-				const e = document.createElement("iframe");
+				const e = createiframe(eContent);
 				e.setAttribute("srcdoc", txt);
-				eContent.appendChild(e);
-				eContent.appendChild(eCardOpsTemplate.cloneNode(true));
 
-				e._pele_export_data = txt;
 				e.PeleExportPromise = () => Promise.resolve([type, txt]);
 			}
 			break;
@@ -140,7 +142,7 @@ class Pane
 		this._savedW = W;
 		this._savedH = H;
 
-	// update the element's style
+		// update the element's style
 		this.element.style.width = W + 'px';
 		this.element.style.height = H + 'px';
 
@@ -167,14 +169,41 @@ class Pane
 			this.element.classList.remove("pele_tranform_lock");
 	}
 
+	IFrameElement()
+	{
+		return this.element.querySelector(".pele_content > iframe");
+	}
+
+	SetSleepState(fState)
+	{
+		const eFrame = this.IFrameElement();
+		if (eFrame)
+		{
+			console.debug("iFrame detected", eFrame, fState);
+			if (fState)
+			{
+				this.element.classList.add("pele_sleeping");
+				eFrame.setAttribute("sandbox", "");
+			}
+			else
+			{
+				this.element.classList.remove("pele_sleeping");
+				eFrame.removeAttribute("sandbox");
+			}
+
+			eFrame.src = eFrame.src;
+		}
+	}
+
+
 	SetZoomState(fState)
 	{
 		if (fState)
 		{
 			this.element.classList.add("pele_zoomedin");
-			this.element.style.transform=null;
-			this.element.style.width=null;
-			this.element.style.height=null;
+			this.element.style.transform = null;
+			this.element.style.width = null;
+			this.element.style.height = null;
 		}
 		else
 		{
@@ -198,6 +227,9 @@ class Pane
 		this.element.setAttribute("data-pele-id", ++uuid);
 
 		createslide(this.element.querySelector(".pele_content"), ...KookData(data));
+
+		if (this.IFrameElement())
+			this.element.classList.add("pele_sleepingagent");
 
 		this.manager = manager;
 		this.manager.Container.appendChild(this.element);
@@ -287,6 +319,20 @@ class Pane
 			{
 				manager.ActionSetTransformLock(Pane.FromElement(event.target).GetDataId(), false);
 			});
+
+		interact(this.element.querySelector(".card-op-sleep"))
+			.on("click", (event) =>
+			{
+				manager.ActionSetSleepState(Pane.FromElement(event.target).GetDataId(), true);
+			});
+
+		Array.from(this.element.querySelectorAll(".card-op-wake")).forEach(e => interact(e)
+			.on("click", (event) =>
+			{
+				manager.ActionSetSleepState(Pane.FromElement(event.target).GetDataId(), false);
+			})
+		);
+
 
 
 		interact(this.element.querySelector(".card-op-GoFullScreen"))
@@ -406,8 +452,8 @@ class Pane
 	{
 		const e = event.target;
 
-		if (matchesSleepButton(e))
-			alert("yo");
+		/* 		if (matchesSleepButton(e))
+					alert("yo"); */
 	}
 
 
@@ -573,12 +619,12 @@ class PaneManager
 		const pane = new Pane(this, txt);
 
 		const windowcount = this.Container.children.length;
-		const gridwidth=42;
+		const gridwidth = 42;
 		const r = this.Container.getBoundingClientRect();
-		const nx = r.width/(2*gridwidth);
-		const ny = r.height/(2*gridwidth);
+		const nx = r.width / (2 * gridwidth);
+		const ny = r.height / (2 * gridwidth);
 
-		pane.Resize((windowcount%nx)*gridwidth, (windowcount%ny)*gridwidth, r.width/2, r.height/2 );
+		pane.Resize((windowcount % nx) * gridwidth, (windowcount % ny) * gridwidth, r.width / 2, r.height / 2);
 
 		this.BringToFront(pane);
 	}
@@ -612,6 +658,11 @@ class PaneManager
 	ActionSetTransformLock()
 	{
 		this.Action("DoSetTransformLock", ...arguments);
+	}
+
+	ActionSetSleepState()
+	{
+		this.Action("DoSetSleepState", ...arguments);
 	}
 
 	ActionSetZoomState()
@@ -660,6 +711,12 @@ class PaneManager
 		{
 			this.PaneFromDataId(id).SetTransformLock(...args);
 		}
+
+		function doSetSleepState(id, ...args)
+		{
+			this.PaneFromDataId(id).SetSleepState(...args);
+		}
+
 		function doSetZoomState(id, ...args)
 		{
 			this.PaneFromDataId(id).SetZoomState(...args);
@@ -686,7 +743,8 @@ class PaneManager
 			case "DoResize": doResize.apply(this, args); break;
 			case "DoBringToFront": doBringToFront.apply(this, args); break;
 			case "DoSetTransformLock": doSetTransformLock.apply(this, args); break;
-			case "DoSetZoomState":doSetZoomState.apply(this, args); break;
+			case "DoSetSleepState": doSetSleepState.apply(this, args); break;
+			case "DoSetZoomState": doSetZoomState.apply(this, args); break;
 			case "DoDelete": doDelete.apply(this, args); break;
 			case "SetIframeActiveState": doIframe.apply(this, args); break;
 		}

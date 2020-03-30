@@ -110,9 +110,9 @@ body {
 	opacity: 0.6666;
 }
 
-.pele_zoomedin{
-	width:100%;
-	height:100%;
+.pele_zoomedin {
+	width: 100%;
+	height: 100%;
 	transform: unset;
 }
 
@@ -371,6 +371,14 @@ body {
 }
 
 .card-operations {
+	display: none;
+
+	font-size:2rem;
+
+	.pele_sleepingagent.pele_sleeping & {
+		display: flex;
+	}
+
 	position: absolute;
 	left: 0;
 	bottom: 0;
@@ -381,7 +389,7 @@ body {
 	transition: all .3s ease 0s;
 
 	button {
-		font-size: 1rem;
+		font-size: 1em;
 
 		.pele_zoomedin & {
 			font-size: 2rem;
@@ -491,12 +499,12 @@ body {
 }
 
 .pele_zoomedin {
+
 	.pele_resize_border,
 	.card-op-GoFullScreen,
 	.card-op-Lock,
 	.card-op-Unlock,
-	.card-op-Rotate
-	 {
+	.card-op-Rotate {
 		display: none;
 	}
 
@@ -531,6 +539,22 @@ body {
 	}
 
 	.card-op-Unlock {
+		display: unset;
+	}
+
+}
+
+
+.card-op-wake {
+	display: none;
+}
+
+.pele_sleeping {
+	.card-op-sleep {
+		display: none;
+	}
+
+	.card-op-wake {
 		display: unset;
 	}
 
