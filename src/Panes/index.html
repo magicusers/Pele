@@ -12,6 +12,11 @@
 
 	<script src="//<%= HOST_ATHEOS_LIBRARY %>/atheos/afrodite.js"></script>
 	<link rel="stylesheet" href="//<%= HOST_ATHEOS_LIBRARY %>/atheos/themes/container.dark.css">
+
+	<script src="/Atalanta/lib.js"></script>
+	<link href="/Atalanta/base.css" rel="stylesheet" type="text/css" />
+	
+	
 </head>
 
 <body>
@@ -32,7 +37,12 @@
 
 		<div id="idTemplatePane" class="pele_pane">
 			<div class="pele_title">
-				<span class="card-text"></span>
+				<div class="card-label" contenteditable="true">Untitled</div>
+				<span class="card-label-controls">
+					<button class="card-op-CancelLabel" title="Cancel">✗</button>
+					<button class="card-op-SubmitLabel" title="Submit">✔</button>
+				</span>
+
 				<span class="card-ops"> 
 					<button class="card-op-Lock" title="Lock">🔒</button>
 					<button class="card-op-Unlock"  title="Unlock">🔓</button>
@@ -40,6 +50,7 @@
 					<button class="card-op-GoFullScreen" title="Fullscreen">⚽</button>
 					<button class="card-op-sleep" title="Sleep">💤</button>
 					<button class="card-op-wake" title="Wake">☀</button>
+					<button class="card-op-Copy"  title="Drag to Copy" draggable="true">⇜</button>
 					<button class="card-op-Unzoom" title="Restore">_</button>
 					<button class="card-op-Close">×</button>
 				</span>

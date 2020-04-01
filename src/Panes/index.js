@@ -12,10 +12,13 @@ import interact from 'interactjs';
 
 const typeMagicIFrame = "magic.iframe";
 const MimeTypeForContainer = "application/x-magicusers-list";
+const TypeofDragon = "text/x-magicusers-pane-data";
 
 const ePaneTemplate = extractTemplateElement("idTemplatePane");
 const eNavigationTemplate = extractTemplateElement("idTemplateNavigation");
 const eCardOpsTemplate = extractTemplateElement("idTemplateCardOperations");
+
+const PERIOD_PASTE_URL_WAIT = 5000;
 
 function matchesCloseButton(el)
 {
@@ -32,9 +35,9 @@ function matchesWakeButton(el)
 	return elementMatches(el, '.card-op-wake');
 }
 
-function matchesRotateButton(el)
+function matchesTitleLabel(el)
 {
-	return elementMatches(el, '.card-op-Rotate');
+	return elementMatches(el, '.pele_title > .card-label');
 }
 
 function extractContentElement(e)
@@ -51,11 +54,14 @@ function createslide(eContent, type, txt)
 	{
 		const e = document.createElement("iframe");
 
-		e._pele_export_data = txt;
 		eContent.appendChild(e);
 
 		eContent.appendChild(eCardOpsTemplate.cloneNode(true));
 
+		e.addEventListener("load", (event) =>
+		{
+			console.debug("iframe loaded", e.title);
+		});
 		return e;
 	}
 
@@ -69,7 +75,6 @@ function createslide(eContent, type, txt)
 				removeElement(eNav.querySelector(".card-op-sleep"));
 				eContent.appendChild(e);
 
-				e._pele_export_data = txt;
 				e.PeleExportPromise = () => Promise.resolve([type, txt]);
 			}
 			break;
@@ -77,7 +82,7 @@ function createslide(eContent, type, txt)
 		case "iframe": // hackhack: Make this more restrictive and secure
 			{
 				const src = txt;
-				const e = createiframe(eContent);
+				const e = createiframe(eContent, txt);
 
 				e.setAttribute("allow", "camera;microphone");
 				e.setAttribute("src", src);
@@ -99,7 +104,7 @@ function createslide(eContent, type, txt)
 
 		default:
 			{
-				const e = createiframe(eContent);
+				const e = createiframe(eContent, txt);
 				e.setAttribute("srcdoc", txt);
 
 				e.PeleExportPromise = () => Promise.resolve([type, txt]);
@@ -115,20 +120,36 @@ let uuid = 0;
 
 class Pane
 {
+	get ContentContainerElement()
+	{
+		return this.element.querySelector('.pele_content');
+	}
+
+	get ContentElement()
+	{
+		return this.ContentContainerElement.firstElementChild;
+	}
+
+	get LabelElement()
+	{
+		return this.element.querySelector('.pele_title > .card-label');
+	}
+
 	get PeleExportPromise()
 	{
-		const e = this.element.querySelector('.pele_content').firstElementChild;
+		const e = this.ContentElement;
 
-		const dim={
-			x:this.PositionX,
-			y:this.PositionY,
-			a:this.PositionAngle,
-			H:this._savedH,
-			W:this._savedW
+		const dim = {
+			x: this.PositionX,
+			y: this.PositionY,
+			a: this.PositionAngle,
+			H: this._savedH,
+			W: this._savedW
 		}
-		return function()
+		return function ()
 		{
-			return e.PeleExportPromise().then(([type, txt])=>{
+			return e.PeleExportPromise().then(([type, txt]) =>
+			{
 				return Promise.resolve([type, txt, dim]);
 			})
 
@@ -171,8 +192,8 @@ class Pane
 
 		this.UpdateTransform();
 
-		const content = this.element.querySelector(".pele_title .card-text");
-		content.textContent = Math.round(W) + '\u00D7' + Math.round(H);
+		//const content = this.element.querySelector(".pele_title .card-text");
+		//content.textContent = Math.round(W) + '\u00D7' + Math.round(H);
 	}
 
 	Rotate(angle)
@@ -192,6 +213,11 @@ class Pane
 	IFrameElement()
 	{
 		return this.element.querySelector(".pele_content > iframe");
+	}
+
+	SetLabel(label)
+	{
+		this.LabelElement.innerHTML = label;
 	}
 
 	SetSleepState(fState)
@@ -251,11 +277,19 @@ class Pane
 		this.element.setAttribute("data-pele-id", ++uuid);
 
 		const eContent = this.element.querySelector(".pele_content");
-		if (type)
-			createslide(eContent, type, data);
-		else
-			createslide(eContent, ...KookData(data));
-				
+
+		let cookedata = data;
+		if (!type)
+		{
+			const [t, d] = KookData(data);
+
+			type = t;
+			cookedata = d;
+		}
+
+		eContent._papa_export = [type, cookedata, data];
+		createslide(eContent, type, cookedata);
+
 
 		if (this.IFrameElement())
 			this.element.classList.add("pele_sleepingagent");
@@ -265,6 +299,21 @@ class Pane
 
 		//this.element.querySelector(".pele_title").textContent = title;
 
+
+		const eCopy = this.element.querySelector(".card-op-Copy");
+		eCopy.addEventListener("dragstart", (event) =>
+		{
+			console.debug("dragstart", event.target);
+
+			const [type, cookedata, data] = this.ContentContainerElement._papa_export;
+
+			event.dataTransfer.setData("text/plain", data);
+			event.dataTransfer.setData(TypeofDragon, JSON.stringify([type, cookedata]));
+
+			event.dataTransfer.effectAllowed = "copy";
+			//event.dataTransfer.setData(KONST.DRAGON_DROP_MIME_TYPE, "hello");
+			event.stopPropagation();
+		}, true);
 
 
 		interact(this.element)
@@ -313,7 +362,7 @@ class Pane
 			})
 			.draggable({
 				allowFrom: '.pele_title',
-				ignoreFrom: '.card-ops',
+				ignoreFrom: '.card-ops, .card-label, .card-label-controls',
 				listeners: {
 					start: event =>
 					{
@@ -362,10 +411,73 @@ class Pane
 			})
 		);
 
+		this.LabelElement.addEventListener("input", (event) =>
+		{
+			this.LabelElement.classList.add("pele_dirty");
+		}
+		);
+
+
+		let savedText;
+		interact(this.LabelElement)
+			.on("focus", (event) =>
+			{
+				savedText = this.LabelElement.innerHTML;
+			});
+
+		function undoLabelChange()
+		{
+			this.LabelElement.innerHTML = savedText;
+			this.LabelElement.classList.remove("pele_dirty");
+		}
+		function submitLabelChange()
+		{
+			manager.ActionSetLabel(Pane.FromElement(event.target).GetDataId(), this.LabelElement.innerHTML);
+			savedText = null;
+			this.LabelElement.classList.remove("pele_dirty");
+	}
+
+		interact(this.LabelElement)
+			.on("keydown", (event) =>
+			{
+				//console.debug("key", event.code, event.keyCode, event.key);
+				switch (event.key)
+				{
+					case "Escape":
+						undoLabelChange.call(this);
+						break;
+	
+					case 'Enter':
+						submitLabelChange.call(this);
+						break;
+		
+					default:
+						return;
+				}
+
+				event.target.blur();
+				event.preventDefault();
+				event.stopPropagation();
+			});
+
+		interact(this.element.querySelector(".card-op-CancelLabel"))
+			.on("click", (event) =>
+			{
+				undoLabelChange.call(this);
+			});
+		interact(this.element.querySelector(".card-op-SubmitLabel"))
+			.on("click", (event) =>
+			{
+				submitLabelChange.call(this);
+			});
+
+
+
 
 		function togglezoom(event)
 		{
-			manager.ActionSetZoomState(Pane.FromElement(event.target).GetDataId(), !this.IsZoomed());
+			if (!matchesTitleLabel(event.target))
+				manager.ActionSetZoomState(Pane.FromElement(event.target).GetDataId(), !this.IsZoomed());
 		}
 
 		interact(this.element.querySelector(".card-op-GoFullScreen"))
@@ -535,7 +647,7 @@ class PaneManager
 	{
 		this.Container = container;
 
-		this.rgPendingMagicFrames= {};
+		this.rgPendingMagicFrames = {};
 		function onClick(event)
 		{
 			const e = event.target;
@@ -543,10 +655,19 @@ class PaneManager
 			const ePane = Pane.FromElement(e);
 			if (ePane)
 				ePane.OnClick(event);
-
+			else if (e == container)
+			{
+				console.debug("mothership click");
+			}
 		}
 
 		this.Container.addEventListener("click", onClick);
+
+		let lastDblClick=Date.now();
+		this.Container.addEventListener("dblclick", event=>{
+			if (event.target===this.Container)
+				lastDblClick=Date.now();
+		});
 
 		//this.Add("yo baby");
 		//this.Add("helo");
@@ -561,11 +682,19 @@ class PaneManager
 				event.stopPropagation();
 			}
 		}
-
 		document.addEventListener("paste", event =>
 		{
-			let data = (event.clipboardData || window.clipboardData).getData('text');
-			textdatadrop.call(this, event, data);
+			const elapsed = Date.now()-lastDblClick;
+			if (elapsed > PERIOD_PASTE_URL_WAIT)
+			{
+				console.debug("Ignore paste");
+			}
+			else
+			{
+				let data = (event.clipboardData || window.clipboardData).getData('text');
+				textdatadrop.call(this, event, data);
+			}
+			
 		});
 
 
@@ -576,9 +705,15 @@ class PaneManager
 
 		this.Container.addEventListener("drop", (event) =>
 		{
-			let data = event.dataTransfer.getData("text/html")
-				|| event.dataTransfer.getData("text/uri-list")
-				|| event.dataTransfer.getData("text");
+			let data = event.dataTransfer.getData(TypeofDragon);
+			if (data)
+			{
+				data = JSON.parse(data);
+			}
+			else
+				data = event.dataTransfer.getData("text/html")
+					|| event.dataTransfer.getData("text/uri-list")
+					|| event.dataTransfer.getData("text");
 
 			textdatadrop.call(this, event, data);
 		});
@@ -646,6 +781,14 @@ class PaneManager
 
 	DoAddText(txt, type, dim)
 	{
+		if (typeof txt !== "string")
+		{
+			const [t, d] = txt;
+
+			txt = d;
+			type = t;
+		}
+
 		const pane = new Pane(this, txt, type);
 
 
@@ -664,9 +807,9 @@ class PaneManager
 		{
 			pane.Resize((windowcount % nx) * gridwidth, (windowcount % ny) * gridwidth, r.width / 2, r.height / 2);
 		}
-	
+
 		this.BringToFront(pane);
-		
+
 		if (type === "iframe" && (txt in this.rgPendingMagicFrames))
 		{
 			const url = txt;
@@ -674,19 +817,21 @@ class PaneManager
 			delete this.rgPendingMagicFrames[url];
 
 			const eFrame = pane.IFrameElement();
-			
-			eFrame.addEventListener("load", ()=>{
-				Aθεος.Freyja.OnReadyChild(eFrame).then(()=>{
+
+			eFrame.addEventListener("load", () =>
+			{
+				Aθεος.Freyja.OnReadyChild(eFrame).then(() =>
+				{
 					console.debug("Import data", eFrame);
 					Aθεος.Freyja.QueryChild(eFrame.contentWindow, "Import", archivedata.MimeType, archivedata.Payload)
-						.catch((err)=>console.warn("Import error", err));
-						;
+						.catch((err) => console.warn("Import error", err));
+					;
 				})
-				.catch((err) => console.warn("import fail", err))
-				;
+					.catch((err) => console.warn("import fail", err))
+					;
 			});
 
-		}	
+		}
 
 	}
 
@@ -723,6 +868,12 @@ class PaneManager
 	ActionSetSleepState()
 	{
 		this.Action("DoSetSleepState", ...arguments);
+	}
+
+	ActionSetLabel()
+	{
+		this.Action("DoSetLabel", ...arguments);
+
 	}
 
 	ActionSetZoomState()
@@ -777,6 +928,11 @@ class PaneManager
 			this.PaneFromDataId(id).SetSleepState(...args);
 		}
 
+		function doSetLabel(id, ...args)
+		{
+			this.PaneFromDataId(id).SetLabel(...args);
+		}
+
 		function doSetZoomState(id, ...args)
 		{
 			this.PaneFromDataId(id).SetZoomState(...args);
@@ -804,12 +960,13 @@ class PaneManager
 			case "DoBringToFront": doBringToFront.apply(this, args); break;
 			case "DoSetTransformLock": doSetTransformLock.apply(this, args); break;
 			case "DoSetSleepState": doSetSleepState.apply(this, args); break;
+			case "DoSetLabel": doSetLabel.apply(this, args); break;
 			case "DoSetZoomState": doSetZoomState.apply(this, args); break;
 			case "DoDelete": doDelete.apply(this, args); break;
 			case "SetIframeActiveState": doIframe.apply(this, args); break;
 		}
 	}
-	
+
 	Export()
 	{
 		//return Promise.resolve([MimeTypeForEvents, this.Server.Export()]) ;
@@ -823,16 +980,17 @@ class PaneManager
 
 		return Promise.all(rgp);
 
-	}	
-	
+	}
+
 
 	Import(rg)
 	{
 		console.debug("import slides", rg);
 
-		rg.forEach(([type, txt, dim]) => {
+		rg.forEach(([type, txt, dim]) =>
+		{
 
-			if(type === typeMagicIFrame)
+			if (type === typeMagicIFrame)
 			{
 				const archivedata = txt;
 				const url = Aθεος.Αφροδίτη.GenerateNewInstanceURL(location.protocol + "//" + archivedata.Source);
@@ -881,7 +1039,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 
 				this.patched_Action = gameserver.PatchRaw(function (envelope, ...args)
 				{
-					this.original_Action(...args, envelope);
+					this.original_Action(...args);
 				}.bind(this));
 
 			}
@@ -896,7 +1054,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 				super.Action(...arguments);
 			}
 
-		
+
 		}
 
 		this.paneManager = new MyPaneManager(this, document.getElementById("painMain"));

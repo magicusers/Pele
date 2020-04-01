@@ -101,6 +101,7 @@ body {
 	//height: 95%;
 	min-height: 85%;
 	overflow: auto;
+	flex:1;
 
 	//min-height:calc(100% - #{$magicmenu-height});
 	//border: thin dotted $theme-color-primary;
@@ -396,6 +397,30 @@ body {
 	}
 }
 
+.card-label-controls
+{
+	display: none;
+	vertical-align: top;
+}
+
+.card-label
+{
+	padding: 0 1em;
+	min-width: 2em;
+	display: inline-block;
+	max-height: 1em;	
+
+	&:empty::before
+	{
+		content: "␢";
+		opacity: 0.3;
+	}
+
+	&.pele_dirty + .card-label-controls
+	{
+		display:unset;
+	}
+}
 
 .card-op-Unzoom {
 	display: none;

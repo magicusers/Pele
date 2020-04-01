@@ -229,7 +229,7 @@ function makecommonconfig(argv)
 					"Muuri": "Muuri",
 					"lodash": '_',
 					"videojs":"videojs",
-					"interactjs":"interactjs"
+					"interact":"interactjs"
 				})
 		},
 		devServer: {
