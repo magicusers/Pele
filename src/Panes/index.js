@@ -144,7 +144,8 @@ class Pane
 			y: this.PositionY,
 			a: this.PositionAngle,
 			H: this._savedH,
-			W: this._savedW
+			W: this._savedW,
+			L: this.LabelElement.innerHTML
 		}
 		return function ()
 		{
@@ -798,10 +799,15 @@ class PaneManager
 		const nx = r.width / (2 * gridwidth);
 		const ny = r.height / (2 * gridwidth);
 
-		if (dim && dim.W && dim.H)
+		if (!_.isUndefined(dim) && dim.W && dim.H)
 		{
 			pane.Resize(dim.x, dim.y, dim.W, dim.H);
-			pane.Rotate(dim.a);
+			
+			if (!_.isUndefined(dim.a))
+				pane.Rotate(dim.a);
+
+			if (!_.isUndefined(dim.L))
+				pane.SetLabel(dim.L);
 		}
 		else
 		{
