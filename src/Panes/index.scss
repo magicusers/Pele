@@ -113,7 +113,7 @@ body {
 	}
 
 	.pele_content {
-		>iframe {
+		>iframe[src] {
 			pointer-events: unset;
 		}
 	}

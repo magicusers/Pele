@@ -276,6 +276,7 @@ class Pane
 	{
 		this.element = ePaneTemplate.cloneNode(true);
 		this.element.setAttribute("data-pele-id", ++uuid);
+		//this.element.setAttribute("id", "ιδPane_"+uuid);
 
 		const eContent = this.element.querySelector(".pele_content");
 

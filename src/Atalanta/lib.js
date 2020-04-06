@@ -1,3 +1,6 @@
+import { removeElement, extractTemplateElement, elementMatches, elementClosest } from '../BatMan/elementary';
+
+
 /*
 	Thank you TogetherJS
 */
@@ -6,22 +9,23 @@ function isIgnorableElement(el)
 {
 	try
 	{
-		return el.className.indexOf("Aταλάντη") >= 0;
+		return el.classList.contains("Aταλάντη-ignorable");
+		//return el.className.indexOf("Aταλάντη") >= 0;
 	}
 	catch (ex)
 	{
 	}
 }
 
-function jqoffset(elem)
+function jqoffset(elem, docElem)
 {
 	const box = elem.getBoundingClientRect();
 
-	const docElem = document.documentElement;
+	docElem = docElem || elem.parentElement;
 
 	return {
-		top: box.top + (window.pageYOffset || docElem.scrollTop) - (docElem.clientTop || 0),
-		left: box.left + (window.pageXOffset || docElem.scrollLeft) - (docElem.clientLeft || 0),
+		top: box.top + (docElem.scrollTop) - (docElem.clientTop || 0),
+		left: box.left + (docElem.scrollLeft) - (docElem.clientLeft || 0),
 		H: box.height,
 		W: box.width
 	};
@@ -74,7 +78,22 @@ class CannotFind
 	}
 };
 
+function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y)
+{
+	const s1_x = p1_x - p0_x;
+	const s1_y = p1_y - p0_y;
+	const s2_x = p3_x - p2_x;
+	const s2_y = p3_y - p2_y;
 
+    
+    const s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+    const t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+    if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+    {
+        return [p0_x + (t * s1_x), p0_y + (t * s1_y)];
+    }
+}
 
 function ElementAddress(el)
 {
@@ -291,7 +310,7 @@ function PixelForPosition(position)
 
 
 const cursorTemplate = `
-<div class="Aταλάντη-cursor Aταλάντη">
+<div class="Aταλάντη-cursor Aταλάντη Aταλάντη-ignorable">
 <!-- Note: images/cursor.svg is a copy of this (for editing): -->
 <!-- crossbrowser svg dropshadow http://demosthenes.info/blog/600/Creating-a-True-CrossBrowser-Drop-Shadow- -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -300,11 +319,19 @@ const cursorTemplate = `
 <path fill="#231F20" d="m 98.984,146.692 c 1.61561,1.19132 1.66967,3.36108 2.30096,5.10001 0.28043,0.7813 0.59089,1.8632 1.53689,2.01178 0.72322,-0.33708 1.54083,-0.50377 2.32914,-0.18547 0.73775,0.24911 1.5217,0.4209 2.29234,0.29422 1.53022,0.34165 2.4145,1.89027 2.79483,3.29915 0.49387,2.09092 -0.19861,4.19867 -0.72905,6.20916 0.55113,0.76664 2.42981,1.20534 1.23551,2.37094 -1.41795,2.42962 -4.41354,4.00979 -7.21564,3.29534 -1.25841,-0.12361 -2.03236,-1.19354 -1.94693,-2.40271 -0.37389,-1.39176 -1.735424,-2.09767 -2.677405,-3.06552 -1.381978,-1.20656 -2.747836,-2.84897 -2.532353,-4.80881 -0.06582,-1.07202 1.069236,-2.82053 2.140687,-1.62992 0.286101,0.42388 1.224397,0.80852 0.669128,-0.0282 -0.986107,-2.38799 -2.398539,-4.66734 -2.755432,-7.26523 -0.208873,-1.18484 0.327997,-2.51056 1.496125,-2.97364 0.333172,-0.14664 0.697247,-0.22261 1.0612,-0.22112 z"/>
 </svg>
 
-<span class="Aταλάντη-cursor-container">
-  <span class="Aταλάντη-cursor-name"></span>
+<div class="Aταλάντη-cursor-container">
+  <div class="Aταλάντη-cursor-name"></div>
   <span style="display:none" class="Aταλάντη-cursor-typing" id="Aταλάντη-cursor-typebox">
 	<span class="Aταλάντη-typing-ellipse-one">&#9679;</span><span class="Aταλάντη-typing-ellipse-two">&#9679;</span><span class="Aταλάντη-typing-ellipse-three">&#9679;</span>
   </span>
+
+  <!--
+  <div class="Aταλάντη-cursor-menu">
+  <button class="Aταλάντη-cursor-menu-button-Goto">Goto</button>
+  <button class="Aταλάντη-cursor-menu-button-Info">Info</button>
+  </div>
+  -->
+
   <!-- Displayed when the cursor is below the screen: -->
   <span class="Aταλάντη-cursor-down">
 
@@ -313,7 +340,7 @@ const cursorTemplate = `
   <span class="Aταλάντη-cursor-up">
 
   </span>
-</span>
+</div>
 </div>
 `;
 
@@ -368,24 +395,49 @@ const KEEPALIVE_PERIOD_MS = (5 * 1000);
 // FIXME: should check for a peer leaving and remove the cursor object
 export class Cursor
 {
+	static FromChild(element)
+	{
+		const e = elementClosest(element, ".Aταλάντη-cursor");
+		if (e)
+			return e.getAttribute("data-client-id");
+	}
+
+	static get Container()
+	{
+		return document.querySelector(".Aταλάντη-Container") || document.body;
+	}
+
 	constructor(clientId) 
 	{
 		this.clientId = clientId;
 		this.element = createElementFromHTML(cursorTemplate);
 		this.elementClass = "Aταλάντη-scrolled-normal";
 		this.element.classList.add(this.elementClass);
+		this.element.setAttribute("data-client-id", clientId);
 		//		this.updatePeer(peers.getPeer(clientId));
 		this.updatePeer(User2Peer(world.coven.User(clientId)));
 
 		this.lastTop = this.lastLeft = null;
 
-		document.body.appendChild(this.element);
+		Cursor.Container.appendChild(this.element);
 		//this.element.animateCursorEntry();
 		this.keydownTimeout = null;
 		this.clearKeydown = this.clearKeydown.bind(this);
 		this.atOtherUrl = false;
 
 		this.Keepalive();
+	}
+
+	scrollTo()
+	{
+		console.debug("scrollTo", 	this.lastTop, this.lastLeft);
+		//document.querySelector(".interactContainer").scrollTo(this.lastLeft, this.lastTop);
+
+		const container = this.element.parentElement;
+
+		const r = container.getBoundingClientRect();
+		
+		container.scrollTo(this.lastLeft - r.width/2, this.lastTop - r.height/2);
 	}
 
 	Keepalive()
@@ -488,6 +540,11 @@ export class Cursor
 			top = pos.top;
 			left = pos.left;
 		}
+		const container = this.element.parentElement;
+		top += container.scrollTop;
+		left += container.scrollLeft;
+
+
 		// These are saved for use by .refresh():
 		this.lastTop = top;
 		this.lastLeft = left;
@@ -505,43 +562,58 @@ export class Cursor
 		this.element.hide();
 	}
 
-	// place Cursor rotate function down here FIXME: this doesnt do anything anymore.  This is in the CSS as an animation
-	rotateCursorDown()
-	{
-		var e = $(this.element).find('svg');
-		e.animate({ borderSpacing: -150, opacity: 1 }, {
-			step: function (now, fx)
-			{
-				if (fx.prop == "borderSpacing")
-				{
-					e.css('-webkit-transform', 'rotate(' + now + 'deg)')
-						.css('-moz-transform', 'rotate(' + now + 'deg)')
-						.css('-ms-transform', 'rotate(' + now + 'deg)')
-						.css('-o-transform', 'rotate(' + now + 'deg)')
-						.css('transform', 'rotate(' + now + 'deg)');
-				} else
-				{
-					e.css(fx.prop, now);
-				}
-			},
-			duration: 500
-		}, 'linear').promise().then(function ()
-		{
-			e.css('-webkit-transform', '')
-				.css('-moz-transform', '')
-				.css('-ms-transform', '')
-				.css('-o-transform', '')
-				.css('transform', '')
-				.css("opacity", "");
-		});
-	}
-
 	setPosition(top, left) 
 	{
-		var wTop = window.scrollY;
-		var height = document.documentElement.clientHeight;
+		const container = this.element.parentElement;
+		const r = container.getBoundingClientRect();
 
-		//console.debug(top, left, wTop, height);
+		const wTop = container.scrollTop;// window.scrollY;		
+		const height = container.clientHeight;// document.documentElement.clientHeight;
+		
+		//console.debug(top, left, wTop, height, r, container);
+
+		top -= r.top ;
+		left -= r.left;
+
+
+		const rC = this.element.getBoundingClientRect();
+
+		const x0 = container.scrollLeft + rC.width;
+		const y0 = container.scrollTop+ rC.height;
+		const x1 = x0 + container.clientWidth  - 2*rC.width;
+		const y1 = y0 + container.clientHeight - 2*rC.height;
+
+		const cx = (x0 + x1)/2;
+		const cy = (y0+y1)/2;
+
+		const intersectionTop = get_line_intersection(x0, y0, x1, y0, left, top, cx, cy);
+		const intersectionBottom = get_line_intersection(x0, y1, x1, y1, left, top, cx, cy);
+		const intersectionLeft = get_line_intersection(x0, y0, x0, y1, left, top, cx, cy);
+		const intersectionRight = get_line_intersection(x1, y0, x1, y1, left, top, cx, cy);
+
+		//console.debug("intersection:", intersectionLeft, intersectionTop, intersectionRight, intersectionBottom);
+		const inter = intersectionLeft|| intersectionTop|| intersectionRight|| intersectionBottom;
+
+		if (inter)
+		{
+			left = inter[0];
+			top = inter[1];
+
+			const angle = -Math.atan2(cx-left, cy-top);
+			//console.debug("angle:", angle);
+			
+			this.element.style.transform = "rotate("+angle+"rad)";
+			this.element.querySelector(".Aταλάντη-cursor-container").style.transform = "rotate("+ -angle+"rad)";
+			this.setClass("Aταλάντη-scrolled-outofrange");
+		}
+		else
+		{
+			this.element.style.transform = null;
+			this.element.querySelector(".Aταλάντη-cursor-container").style.transform = null;
+			this.setClass("Aταλάντη-scrolled-normal");
+		}
+/*
+	
 		if (top < wTop)
 		{
 			// FIXME: this is a totally arbitrary number, but is meant to be big enough
@@ -556,8 +628,8 @@ export class Cursor
 		{
 			this.setClass("Aταλάντη-scrolled-normal");
 		}
-
-
+*/
+		
 		this.element.style.top = top + 'px';
 		this.element.style.left = left + 'px';
 	}
@@ -675,6 +747,31 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 		});
 	}, KEEPALIVE_PERIOD_MS);
 
+
+	const SCROLL_UPDATE_INTERVAL = 200;
+	const patch_Scroll = world.Server.PatchVolatile(function (envelope, l, t)
+	{
+		if (envelope)
+		{
+			const cursor = Cursor.getClient(envelope.sender);
+			console.debug("remtoe scroll", l, t);
+			if (cursor)
+				;//cursor.Keepalive(msg);
+		}
+	});
+
+	Cursor.Container.addEventListener("scroll", _.debounce(event=>{
+		const t = event.target;
+		console.debug("scroll", t.scrollLeft, t.scrollTop, t);
+
+		Cursor.forEach((c) =>{
+			c.refresh();
+		  });
+
+		//patch_Scroll(t.scrollLeft, t.scrollTop);
+	}, SCROLL_UPDATE_INTERVAL));
+
+
 	document.body.addEventListener("mousemove", function (event)
 	{
 		const MINIMUM_MOVEMENT_THRESHOLD = 0;
@@ -775,6 +872,14 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 			}
 			if (IgnoreElement(element))
 			{
+				//console.debug("ignore click", element);
+				const cursor =Cursor.getClient( Cursor.FromChild(element));
+				if (cursor)
+				{
+					console.debug("curse her", cursor);	
+					cursor.scrollTo();
+				}
+
 				return;
 			}
 
