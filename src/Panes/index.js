@@ -373,7 +373,7 @@ class Pane
 					move: (event) =>
 					{
 						var x = this.PositionX + event.dx;
-						var y = this.PositionY + event.dy;
+						var y = Math.max(0, this.PositionY + event.dy);
 
 						this.MoveTo(x, y);
 					},
@@ -383,8 +383,12 @@ class Pane
 						manager.ActionMoveTo(Pane.FromElement(event.target).GetDataId(), this.PositionX, this.PositionY);
 					}
 				},
-				inertia: true,
-
+				inertia: false,                    // start inertial movement if thrown
+				modifiers: [
+				  interact.modifiers.restrict({
+					restriction: 'parent'           // keep the drag coords within the element
+				  })
+				],
 			})
 			;
 
@@ -903,58 +907,64 @@ class PaneManager
 
 		function doMoveTo(id, ...args)
 		{
-			this.PaneFromDataId(id).MoveTo(...args);
+			const pane = this.PaneFromDataId(id);
+			if (pane)
+				pane.MoveTo(...args);
 		}
 		function doResize(id, ...args)
 		{
-			this.PaneFromDataId(id).Resize(...args);
+			const pane = this.PaneFromDataId(id);
+			if (pane)
+				pane.Resize(...args);
 		}
 
 		function doRotate(id, ...args)
 		{
-			this.PaneFromDataId(id).Rotate(...args);
+			const pane = this.PaneFromDataId(id);
+			if (pane)
+				pane.Rotate(...args);
 		}
 
 		function doBringToFront(id, ...args)
 		{
-			this.PaneFromDataId(id).BringToFront(...args);
+			const pane = this.PaneFromDataId(id);
+			if (pane)
+				pane.BringToFront(...args);
 		}
 
 		function doDelete(id, ...args)
 		{
-			this.PaneFromDataId(id).Delete(...args);
+			const pane = this.PaneFromDataId(id);
+			if (pane)
+				pane.Delete(...args);
 		}
 
 		function doSetTransformLock(id, ...args)
 		{
-			this.PaneFromDataId(id).SetTransformLock(...args);
+			const pane = this.PaneFromDataId(id);
+			if (pane)
+				pane.SetTransformLock(...args);
 		}
 
 		function doSetSleepState(id, ...args)
 		{
-			this.PaneFromDataId(id).SetSleepState(...args);
+			const pane = this.PaneFromDataId(id);
+			if (pane)
+				pane.SetSleepState(...args);
 		}
 
 		function doSetLabel(id, ...args)
 		{
-			this.PaneFromDataId(id).SetLabel(...args);
+			const pane = this.PaneFromDataId(id);
+			if (pane)
+				pane.SetLabel(...args);
 		}
 
 		function doSetZoomState(id, ...args)
 		{
-			this.PaneFromDataId(id).SetZoomState(...args);
-		}
-
-		function doZoom(id)
-		{
-			const e = this.ItemFromId(id).getElement();
-			doZoomSlide.call(this, e);
-		}
-
-		function doIframe(id, fState)
-		{
-			const e = this.ItemFromId(id).getElement();
-			doSetIframeActiveState.call(this, e, fState);
+			const pane = this.PaneFromDataId(id);
+			if (pane)
+				pane.SetZoomState(...args);
 		}
 
 		switch (cmd)
@@ -970,7 +980,6 @@ class PaneManager
 			case "DoSetLabel": doSetLabel.apply(this, args); break;
 			case "DoSetZoomState": doSetZoomState.apply(this, args); break;
 			case "DoDelete": doDelete.apply(this, args); break;
-			case "SetIframeActiveState": doIframe.apply(this, args); break;
 		}
 	}
 
