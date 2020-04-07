@@ -2,18 +2,17 @@ import './index.scss';
 
 import _ from 'lodash';
 
-import { KookData } from "../BatMan/KookData";
+import { KookData } from "../BatMan/KookMimeData";
 import { KeyBufferCommander } from '../BatMan/KeyBufferCommander';
 
-import {removeElement, extractTemplateElement, elementMatches, elementClosest} from '../BatMan/elementary';
+import { removeElement, extractTemplateElement, elementMatches, elementClosest } from '../BatMan/elementary';
+import { createspellelement, despellify } from "../BatMan/Spell";
 
 //import { arc } from 'd3';
 
 const initgame = _.once(function ()
 {
 	let uuid = 0;
-
-	const typeMagicIFrame = "magic.iframe";
 
 	function matchesCloseButton(el)
 	{
@@ -35,7 +34,7 @@ const initgame = _.once(function ()
 		return e.querySelector('.card-content').firstElementChild;
 	}
 
-	
+
 	class MyMurriSlideShow extends Pele.MuuriSlideShow
 	{
 		constructor(options, gameserver)
@@ -51,32 +50,10 @@ const initgame = _.once(function ()
 			{
 				console.debug("onchange", event);
 			});
-
-			this.rgPendingMagicFrames={};
-			this.patched_AddType=gameserver.Patch((type, txt)=>{
+			this.patched_AddType = gameserver.Patch((type, txt) =>
+			{
 				const e = generateElement(type, txt);
 				this.DoAddElement(e);
-	
-				if (type === "iframe" && (txt in this.rgPendingMagicFrames))
-				{
-					const url = txt;
-					const archivedata = this.rgPendingMagicFrames[url];
-					delete this.rgPendingMagicFrames[url];
-
-					const eFrame = extractContentElement(e);
-					eFrame.addEventListener("load", ()=>{
-						Aθεος.Freyja.OnReadyChild(eFrame).then(()=>{
-							console.debug("Import data", eFrame);
-							Aθεος.Freyja.QueryChild(eFrame.contentWindow, "Import", archivedata.MimeType, archivedata.Payload)
-							    .catch((err)=>console.warn("Import error", err));
-								;
-						})
-						.catch((err) => console.warn("import fail", err))
-						;
-					});
-
-				}
-
 			});
 		}
 
@@ -160,19 +137,9 @@ const initgame = _.once(function ()
 		{
 			console.debug("import slides", rg);
 
-			rg.forEach(([type, txt]) => {
-
-				if(type === typeMagicIFrame)
-				{
-					const archivedata = txt;
-					const url = Aθεος.Αφροδίτη.GenerateNewInstanceURL(location.protocol + "//" + archivedata.Source);
-
-					this.rgPendingMagicFrames[url] = archivedata;
-					txt = url;
-					type = "iframe";
-				}
-
-				this.patched_AddType(type, txt);
+			rg.forEach(([type, txt]) =>
+			{
+				this.patched_AddType(...despellify(type, txt));
 			});
 		}
 
@@ -208,19 +175,6 @@ const initgame = _.once(function ()
 	//window.DoDelete = () => slideshow.DoDelete();
 	window.DoExitFullScreen = () => slideshow.DoEscape();
 
-
-
-	Aθεος.Freyja.AddHandler(function (responder, cmd, ...data)
-	{
-		console.debug("Freyja IPC", cmd, ...data);
-		switch (cmd)
-		{
-			case "Mediaplayer.Control.Directive":
-				Aθεος.Freyja.Children().forEach(child => Aθεος.Freyja.QueryChild(child, cmd, ...data));
-				//responder.Success();
-				break;
-		}
-	});
 
 
 	document.addEventListener("paste", event =>
@@ -277,89 +231,6 @@ const initgame = _.once(function ()
 	const eItemTemplate = extractTemplateElement("idTemplateItem");
 	const eNavigationTemplate = extractTemplateElement("idTemplateNavigation");
 
-	function createslide(eContent, type, txt)
-	{
-		const eNav = eNavigationTemplate.cloneNode(true);
-
-		function CreateIFrame(src)
-		{
-			const e = document.createElement("iframe");
-			e.setAttribute("allow", "camera;microphone");
-			e.setAttribute("src", src);
-			eContent.appendChild(e);
-			eContent.appendChild(eCardOpsTemplate.cloneNode(true));
-
-			e._pele_export_data = src;
-
-			e.PeleExportPromise = () =>
-			Aθεος.Freyja.QueryChild(e.contentWindow, "Export")
-				.then(data => Promise.resolve([typeMagicIFrame, JSON.parse(data)]))
-				.catch(() => Promise.resolve([type, txt]))
-			;
-
-			return e;
-		}
-
-		switch (type)
-		{
-			case "img":
-				{
-					const e = document.createElement("div");
-					e.classList.add("pele-responsive_image_container");
-					e.style.backgroundImage = `url(${txt})`;
-					removeElement(eNav.querySelector(".card-op-sleep"));
-					eContent.appendChild(e);
-
-					e._pele_export_data = txt;
-					e.PeleExportPromise = () => Promise.resolve([type, txt]);
-				}
-				break;
-/*
-			case typeMagicIFrame:
-				{
-					const archivedata = txt;
-
-					const e = CreateIFrame(location.protocol + "//" + archivedata.Source);
-
-					e.addEventListener("load", ()=>{
-						Aθεος.Freyja.OnReadyChild(e).then(()=>{
-							console.debug("Import data", e);
-							Aθεος.Freyja.QueryChild(e.contentWindow, "Import", archivedata.MimeType, archivedata.Payload)
-							    .catch((err)=>console.warn("Import error", err));
-							Aθεος.Freyja.QueryChild(e.contentWindow, "GetURL")
-									.then(url => {console.debug("GetURL", url); e._pele_export_data = url;} )
-									//.catch(() => Promise.resolve([type, txt]))
-								;
-						})
-						.catch((err) => console.warn("import fail", err))
-						;
-					});
-
-				}
-				break;
-*/
-			case "iframe": // hackhack: Make this more restrictive and secure
-				{
-					const e = CreateIFrame(txt);
-				}
-				break;
-
-			default:
-				{
-					const e = document.createElement("iframe");
-					e.setAttribute("srcdoc", txt);
-					eContent.appendChild(e);
-					eContent.appendChild(eCardOpsTemplate.cloneNode(true));
-
-					e._pele_export_data = txt;
-					e.PeleExportPromise = () => Promise.resolve([type, txt]);
-				}
-				break;
-		}
-
-		eContent.appendChild(eNav);
-	}
-
 	function generateElement(type, txt)
 	{
 		const id = ++uuid;
@@ -371,7 +242,7 @@ const initgame = _.once(function ()
 
 		const eContent = itemElem.querySelector(".card-content");
 
-		createslide(eContent, type, txt);
+		createspellelement(eNavigationTemplate, eCardOpsTemplate, eContent, type, txt);
 
 		itemElem.querySelector(".card-id").innerHTML = id;
 		return itemElem;

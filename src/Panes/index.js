@@ -6,11 +6,11 @@ import { KookData } from "../BatMan/KookMimeData";
 import { KeyBufferCommander } from '../BatMan/KeyBufferCommander';
 //import { arc } from 'd3';
 import { removeElement, extractTemplateElement, elementMatches, elementClosest } from '../BatMan/elementary';
+import { createspellelement, despellify } from "../BatMan/Spell";
 
 import interact from 'interactjs';
 
 
-const typeMagicIFrame = "magic.iframe";
 const MimeTypeForContainer = "application/x-magicusers-list";
 const TypeofDragon = "text/x-magicusers-pane-data";
 
@@ -46,74 +46,6 @@ function extractContentElement(e)
 }
 
 
-function createslide(eContent, type, txt)
-{
-	const eNav = eNavigationTemplate.cloneNode(true);
-
-	function createiframe(eContent, txt)
-	{
-		const e = document.createElement("iframe");
-
-		eContent.appendChild(e);
-
-		eContent.appendChild(eCardOpsTemplate.cloneNode(true));
-
-		e.addEventListener("load", (event) =>
-		{
-			console.debug("iframe loaded", e.title);
-		});
-		return e;
-	}
-
-	switch (type)
-	{
-		case "img":
-			{
-				const e = document.createElement("div");
-				e.classList.add("pele-responsive_image_container");
-				e.style.backgroundImage = `url(${txt})`;
-				removeElement(eNav.querySelector(".card-op-sleep"));
-				eContent.appendChild(e);
-
-				e.PeleExportPromise = () => Promise.resolve([type, txt]);
-			}
-			break;
-
-		case "iframe": // hackhack: Make this more restrictive and secure
-			{
-				const src = txt;
-				const e = createiframe(eContent, txt);
-
-				e.setAttribute("allow", "camera;microphone");
-				e.setAttribute("src", src);
-
-
-				e.PeleExportPromise = () =>
-					Aθεος.Freyja.QueryChild(e.contentWindow, "Export")
-						.then(data => Promise.resolve([typeMagicIFrame, JSON.parse(data)]))
-						.catch(() => Promise.resolve([type, txt]))
-					;
-
-			}
-			break;
-
-		case "audio":
-		case "video":
-			console.warn("can't handle media type", type);
-			break;
-
-		default:
-			{
-				const e = createiframe(eContent, txt);
-				e.setAttribute("srcdoc", txt);
-
-				e.PeleExportPromise = () => Promise.resolve([type, txt]);
-			}
-			break;
-	}
-
-	eContent.appendChild(eNav);
-}
 
 let uuid = 0;
 
@@ -290,7 +222,7 @@ class Pane
 		}
 
 		eContent._papa_export = [type, cookedata, data];
-		createslide(eContent, type, cookedata);
+		createspellelement(eNavigationTemplate, eCardOpsTemplate, eContent, type, cookedata);
 
 
 		if (this.IFrameElement())
@@ -328,7 +260,6 @@ class Pane
 					bottom: ".pele_resize_border_bottom",
 					top: ".pele_resize_border_top"
 				},
-
 				listeners: {
 					start: event =>
 					{
@@ -653,7 +584,6 @@ class PaneManager
 	{
 		this.Container = container;
 
-		this.rgPendingMagicFrames = {};
 		function onClick(event)
 		{
 			const e = event.target;
@@ -821,29 +751,6 @@ class PaneManager
 
 		this.BringToFront(pane);
 
-		if (type === "iframe" && (txt in this.rgPendingMagicFrames))
-		{
-			const url = txt;
-			const archivedata = this.rgPendingMagicFrames[url];
-			delete this.rgPendingMagicFrames[url];
-
-			const eFrame = pane.IFrameElement();
-
-			eFrame.addEventListener("load", () =>
-			{
-				Aθεος.Freyja.OnReadyChild(eFrame).then(() =>
-				{
-					console.debug("Import data", eFrame);
-					Aθεος.Freyja.QueryChild(eFrame.contentWindow, "Import", archivedata.MimeType, archivedata.Payload)
-						.catch((err) => console.warn("Import error", err));
-					;
-				})
-					.catch((err) => console.warn("import fail", err))
-					;
-			});
-
-		}
-
 	}
 
 	ActionAddText()
@@ -1005,36 +912,12 @@ class PaneManager
 
 		rg.forEach(([type, txt, dim]) =>
 		{
-
-			if (type === typeMagicIFrame)
-			{
-				const archivedata = txt;
-				const url = Aθεος.Αφροδίτη.GenerateNewInstanceURL(location.protocol + "//" + archivedata.Source);
-
-				this.rgPendingMagicFrames[url] = archivedata;
-
-				txt = url;
-				type = "iframe";
-			}
-
-			this.ActionAddText(txt, type, dim);
+			const [y,x] = despellify(type, txt);
+			this.ActionAddText(x, y, dim);
 		});
 	}
 
 }
-
-
-Aθεος.Freyja.AddHandler(function (responder, cmd, ...data)
-{
-	console.debug("Freyja IPC", cmd, ...data);
-	switch (cmd)
-	{
-		case "Mediaplayer.Control.Directive":
-			Aθεος.Freyja.Children().forEach(child => Aθεος.Freyja.QueryChild(child, cmd, ...data));
-			//responder.Success();
-			break;
-	}
-});
 
 
 class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
