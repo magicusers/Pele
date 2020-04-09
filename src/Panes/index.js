@@ -941,6 +941,17 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 					this.original_Action(...args);
 				}.bind(this));
 
+	
+				Aθεος.Freyja.AddHandler((responder, cmd, ...data)=>
+				{
+					switch (cmd)
+					{
+						case "OpenNewInstance":
+								this.ActionAddText(...data);
+								responder.Success();
+							break;
+					}
+				});			
 			}
 
 			Action()

@@ -708,6 +708,8 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 {
 	world = w;
 
+	if (!world.Server)
+		return;
 
 	var lastTime = 0;
 	var MIN_TIME = 100;

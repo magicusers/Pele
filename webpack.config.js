@@ -220,8 +220,8 @@ function makecommonconfig(argv)
 		{
 			minimize: !isDevelopment
 		},
-		//devtool: isDevelopment? 'source-map':false
-		devtool: 'source-map',
+		devtool: isDevelopment? 'source-map':false,
+		//devtool: 'source-map',
 		externals: {
 			...(isDevelopment ? {} :
 				{

@@ -248,7 +248,17 @@ const initgame = _.once(function ()
 		return itemElem;
 	}
 
-
+	Aθεος.Freyja.AddHandler(function (responder, cmd, ...data)
+	{
+		switch (cmd)
+		{
+			case "OpenNewInstance":
+				slideshow.DoAdd(...data);
+				responder.Success();
+				break;
+		}
+	});
+	
 });
 
 const MimeTypeForContainer = "application/x-magicusers-list";
@@ -262,6 +272,10 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 			Title: "Web Magic Show"
 			, ReloadDocumentOnReset: true
 			, Container: document.getElementById("idMagicUsersContainer")
+			, Manifest:
+			{
+				Description:"Drag and drop links to Magic Web Apps, and other online content. They will be displayed in an ordered list of square tiles. View them fullscreen for astonishing collaborative presentations"
+			}
 		});
 
 
