@@ -1,5 +1,5 @@
 import { set } from "d3";
-import {KookData} from "./BatMan/KookData";
+import {KookData} from "./BatLass/KookData";
 
 const KONST =
 {

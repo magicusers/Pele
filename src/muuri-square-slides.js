@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import Muuri from 'Muuri';
-import { elementClosest } from './BatMan/elementSelect';
-import { MaxGridFitColumn } from './BatMan/MaxGridFitColumn';
+import { elementClosest } from './BatLass/elementSelect';
+import { MaxGridFitColumn } from './BatLass/MaxGridFitColumn';
 
 const KONST =
 {
@@ -95,27 +95,8 @@ export class MuuriSlideShow
 
 		}
 
-		gridElement.addEventListener('click', function (e) { this.OnClick(e); }.bind(this));
-
-		gridElement.addEventListener('dblclick', function (e)
-		{
-			const eItem = elementClosest(e.target, ".item");
-			if (eItem)
-			{
-				if (!this.grid.getItems(eItem)[0].isDragging())
-					this.SlideZoom();
-			}
-			else
-			{
-				const eOverlay = elementClosest(e.target, ".pele_deactive_overlay");
-				if (eOverlay)
-				{
-					event.stopPropagation();
-					//self.Action("DoFullScreen", rowIndex(e));
-				}
-			}
-		}.bind(this));
-
+		gridElement.addEventListener('click', (e)=> { this.OnClick(e); });
+		gridElement.addEventListener('dblclick', (e)=>{ this.OnDblClick(e); });
 
 		gridElement.addEventListener("dragover", function (event)
 		{
@@ -148,6 +129,25 @@ export class MuuriSlideShow
 	ConsolidateMove()
 	{
 		this.Action("DoMove", ...arguments);
+	}
+
+	OnDblClick(event)
+	{
+		const eItem = elementClosest(event.target, ".item");
+		if (eItem)
+		{
+			if (!this.grid.getItems(eItem)[0].isDragging())
+				this.SlideZoom();
+		}
+		else
+		{
+			const eOverlay = elementClosest(event.target, ".pele_deactive_overlay");
+			if (eOverlay)
+			{
+				event.stopPropagation();
+				//self.Action("DoFullScreen", rowIndex(e));
+			}
+		}
 	}
 
 	OnClick(event)

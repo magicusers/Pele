@@ -2,11 +2,11 @@ import './index.scss';
 
 import _ from 'lodash';
 
-import { KookData } from "../BatMan/KookMimeData";
-import { KeyBufferCommander } from '../BatMan/KeyBufferCommander';
+import { KookData } from "../BatLass/KookMimeData";
+import { KeyBufferCommander } from '../BatLass/KeyBufferCommander';
 //import { arc } from 'd3';
-import { removeElement, extractTemplateElement, elementMatches, elementClosest } from '../BatMan/elementary';
-import { createspellelement, despellify } from "../BatMan/Spell";
+import { removeElement, extractTemplateElement, elementMatches, elementClosest } from '../BatLass/elementary';
+import { createspellelement, despellify } from "../BatLass/Spell";
 
 import interact from 'interactjs';
 

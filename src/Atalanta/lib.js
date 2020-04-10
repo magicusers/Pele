@@ -1,4 +1,4 @@
-import { removeElement, extractTemplateElement, elementMatches, elementClosest } from '../BatMan/elementary';
+import { removeElement, extractTemplateElement, elementMatches, elementClosest } from '../BatLass/elementary';
 
 
 /*

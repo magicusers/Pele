@@ -5,7 +5,7 @@ import 'videojs-youtube';
 import './index.scss';
 
 
-import { KookData } from "../BatMan/KookData";
+import { KookData } from "../BatLass/KookData";
 import _ from 'lodash';
 
 class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld

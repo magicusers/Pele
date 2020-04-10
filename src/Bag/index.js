@@ -114,6 +114,17 @@ const initgame = _.once(function ()
 			else
 				super.OnClick(event);
 		}
+		OnDblClick(event)
+		{
+			console.debug("OnDblClick", event);
+			const eTarget = event.target;
+
+			super.OnDblClick(event);
+		}
+		ToggleZoom()
+		{
+			// No Zoom;
+		}
 
 		CreateDragShadow(item)
 		{
@@ -236,6 +247,9 @@ const initgame = _.once(function ()
 		const id = ++uuid;
 		const title = id;
 
+		if (type == "iframe")
+			txt = stripinstance(txt);
+
 		const itemElem = eItemTemplate.cloneNode(true);
 		itemElem.setAttribute("data-id", id);
 		itemElem.setAttribute("data-title", title);
@@ -248,17 +262,33 @@ const initgame = _.once(function ()
 		return itemElem;
 	}
 
+	function stripinstance(txt)
+	{
+		const url = new URL(txt);
+		const params = url.searchParams;
+		params.delete("i");
+		return url.protocol + "//" + url.host + url.pathname + params;
+	}
+
 	Aθεος.Freyja.AddHandler(function (responder, cmd, ...data)
 	{
 		switch (cmd)
 		{
 			case "OpenNewInstance":
-				slideshow.DoAdd(...data);
-				responder.Success();
+				Aθεος.Freyja.QueryParent("OpenNewInstance", ...data)
+					.then(() => responder.Success())
+					.catch(err =>
+					{
+						responder.Fail();
+					});
+				;
+				
+				responder.Pending();
+
 				break;
 		}
 	});
-	
+
 });
 
 const MimeTypeForContainer = "application/x-magicusers-list";
@@ -269,12 +299,12 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 	constructor()
 	{
 		super({
-			Title: "Web Magic Show"
+			Title: "Magic Bag"
 			, ReloadDocumentOnReset: true
 			, Container: document.getElementById("idMagicUsersContainer")
 			, Manifest:
 			{
-				Description:"Drag and drop links to Magic Web Apps, and other online content. They will be displayed in an ordered list of square tiles. View them fullscreen for astonishing collaborative presentations"
+				Description: "Drop links to Magic Web Apps, and other online content. This collection can be used to launch NEW instances that you can share with others."
 			}
 		});
 

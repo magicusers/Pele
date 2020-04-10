@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>Magic Bag of Holding</title>
+
+
+	<%= URL_LODASH_LIBRARY %>
+	<%= URL_WEB_ANIMATIONS_LIBRARY %>
+	<%= URL_MUURI_LIBRARY %>
+
+	<script src="../muuri-square-slides.js"></script>
+	<script src="//<%= HOST_ATHEOS_LIBRARY %>/atheos/afrodite.js"></script>
+	<link rel="stylesheet" href="//<%= HOST_ATHEOS_LIBRARY %>/atheos/themes/container.dark.css">
+</head>
+
+<body>
+	<!-- 	<header>
+		<button onclick="DoSome()">Do Some</button>
+		<button onclick="DoDelete()">Delete</button>
+	</header>
+
+ -->
+ <div style="display:none">
+	<!-- Template Definitions -->
+
+	<div id="idTemplateCardOperations" class="card-operations flex-centered-content fill-container">
+<!-- 		<button class="card-op-sleep">💤 Sleep</button>
+		<button class="card-op-wake">☀ Wake</button>
+ -->	</div>
+
+	<div id="idTemplateNavigation" class="navigation-bar">
+		<button class="card-op-Previous">☜ Previous</button>
+		<button class="card-op-ExitFullScreen">⚽ Exit Show</button>
+		<button class="card-op-sleep">💤 Sleep</button>
+		<button class="card-op-Next">Next ☞</button>
+	</div>
+
+	<div id="idTemplateItem" class="item">
+		<div class="item-content">
+			<div class="card">
+				<div class="card-content"></div>
+				<div class="pele_deactive_overlay"></div>
+				<div class="card-id"></div>
+				<div class="card-remove"></div>
+			</div>
+		</div>
+	</div>	
+</div>
+
+
+	<div id="idTopMenu">
+		<div id="idMagicUsersContainer" title="Tap for more online juice"></div>
+	</div>
+	<div id="coolslides" class="gridContainer">
+		<div class="grid"></div>
+		<div class="help_text flex-centered-content fill-container">
+			<ul>
+				<li>Drop any web page here. It becomes a Magic App</li>
+				<li>Double-click a to view it full-screen</li>
+				<li>Navigate slides using &larr; Left or Right &rarr; keys</li>
+				<li>Press the &#x238B; Escape key to exit full-screen</li>
+				<li>Type 'ed' quickly to enter mode to delete a slide</li>
+				<li>All actions synchronized with those who open this page</li>
+				<li>Scrolling not synchronized</li>
+			</ul>
+		</div>
+	</div>
+
+</body>
+
+</html>

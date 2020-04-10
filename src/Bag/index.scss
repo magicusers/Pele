@@ -1,0 +1,54 @@
+//Theme
+$theme-color-primary: rgb(214, 120, 3);
+$theme-color-fore: rgb(250, 212, 198);
+$theme-color-back: rgb(22, 2, 41);
+
+$magicmenu-height:1.618em;
+$magic-card-size:90%;
+
+
+@import '../muuri-square-slides';
+
+.item {
+
+		&.muuri-item-dragging {
+			pointer-events: none;
+		}
+
+	.card {
+		background-color: mix($theme-color-primary, #888, 50%);
+
+		cursor: move;
+
+
+		.card-content {
+			&:hover>:first-child {
+				pointer-events: unset;
+			}
+
+			margin:auto;
+			width:$magic-card-size;
+			height:$magic-card-size;
+
+			&>iframe {
+				border-width: 0;
+
+			}
+
+		}
+
+		.navigation-bar,
+		.card-operations {
+			display: none;
+			pointer-events: unset;
+
+		}
+
+		&:hover .pele_deactive_overlay {
+			display: none;
+			pointer-events: unset;
+		}
+
+	}
+
+}
