@@ -641,17 +641,23 @@ class PaneManager
 
 		this.Container.addEventListener("drop", (event) =>
 		{
-			let data = event.dataTransfer.getData(TypeofDragon);
+			let data = event.dataTransfer.getData(TypeofDragon)
+			||event.dataTransfer.getData("text/html")
+			|| event.dataTransfer.getData("text/uri-list")
+			|| event.dataTransfer.getData("text");
+
 			if (data)
 			{
-				data = JSON.parse(data);
+				try
+				{
+					data = JSON.parse(data);					
+				}
+				catch(err)
+				{
+				}
+				textdatadrop.call(this, event, data);
 			}
-			else
-				data = event.dataTransfer.getData("text/html")
-					|| event.dataTransfer.getData("text/uri-list")
-					|| event.dataTransfer.getData("text");
 
-			textdatadrop.call(this, event, data);
 		});
 	}
 

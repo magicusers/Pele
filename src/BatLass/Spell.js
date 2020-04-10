@@ -40,6 +40,8 @@ export function createspellelement(eNavigationTemplate, eCardOpsTemplate, eConte
 {
 	const eNav = eNavigationTemplate.cloneNode(true);
 
+	let e;
+	
 	function createiframe(eContent, txt)
 	{
 		const e = document.createElement("iframe");
@@ -76,7 +78,7 @@ export function createspellelement(eNavigationTemplate, eCardOpsTemplate, eConte
 	{
 		case "img":
 			{
-				const e = document.createElement("div");
+				e = document.createElement("div");
 				e.classList.add("pele-responsive_image_container");
 				e.style.backgroundImage = `url(${txt})`;
 				removeElement(eNav.querySelector(".card-op-sleep"));
@@ -89,7 +91,7 @@ export function createspellelement(eNavigationTemplate, eCardOpsTemplate, eConte
 		case "iframe": // hackhack: Make this more restrictive and secure
 			{
 				const src = txt;
-				const e = createiframe(eContent, txt);
+				e = createiframe(eContent, txt);
 
 				e.setAttribute("allow", "camera;microphone");
 				e.setAttribute("src", src);
@@ -111,7 +113,7 @@ export function createspellelement(eNavigationTemplate, eCardOpsTemplate, eConte
 
 		default:
 			{
-				const e = createiframe(eContent, txt);
+				e = createiframe(eContent, txt);
 				e.setAttribute("srcdoc", txt);
 
 				e.PeleExportPromise = () => Promise.resolve([type, txt]);
@@ -120,4 +122,6 @@ export function createspellelement(eNavigationTemplate, eCardOpsTemplate, eConte
 	}
 
 	eContent.appendChild(eNav);
+	
+	return e;
 }

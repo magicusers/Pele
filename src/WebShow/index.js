@@ -50,10 +50,8 @@ const initgame = _.once(function ()
 			{
 				console.debug("onchange", event);
 			});
-			this.patched_AddType = gameserver.Patch((type, txt) =>
+			this.patched_AddType = gameserver.Patch(() =>
 			{
-				const e = generateElement(type, txt);
-				this.DoAddElement(e);
 			});
 		}
 
@@ -67,23 +65,16 @@ const initgame = _.once(function ()
 			super.Action(...arguments);
 		}
 
-		DoAddText(txt)
+		AddType(type, txt)
 		{
-			const e = generateElement(...KookData(txt));
+			const e = generateElement(type, txt);
 			this.DoAddElement(e);
 		}
 
-		ExportData(eContent)
+		DoAddText(txt)
 		{
-			const e = eContent.querySelector(".card-content").firstElementChild;
-
-			const rg = [
-				["text/plain", e._pele_export_data]
-			];
-
-			return rg;
+			this.AddType(...KookData(txt));
 		}
-
 
 		InDragCancelZone(item, event)
 		{
@@ -139,7 +130,7 @@ const initgame = _.once(function ()
 
 			rg.forEach(([type, txt]) =>
 			{
-				this.patched_AddType(...despellify(type, txt));
+				this.DoAdd(JSON.stringify(despellify(type, txt)));
 			});
 		}
 
@@ -242,7 +233,8 @@ const initgame = _.once(function ()
 
 		const eContent = itemElem.querySelector(".card-content");
 
-		createspellelement(eNavigationTemplate, eCardOpsTemplate, eContent, type, txt);
+		const e = createspellelement(eNavigationTemplate, eCardOpsTemplate, eContent, type, txt);
+		e._pele_export_data = [type, txt];
 
 		itemElem.querySelector(".card-id").innerHTML = id;
 		return itemElem;

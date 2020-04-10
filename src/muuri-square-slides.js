@@ -8,7 +8,7 @@ const KONST =
 	pele_dragover: "pele_dragover"
 	, pele_edit_mode: "pele_edit-mode"
 	, pele_zoomedin: "pele_zoomedin"
-	, pele_chosen_one:"pele_chosen_one"
+	, pele_chosen_one: "pele_chosen_one"
 	, pele_sleeping: "pele_sleeping"
 	, DRAGON_DROP_MIME_TYPE: "application/x-pele-move-slideshow"
 
@@ -16,13 +16,17 @@ const KONST =
 
 export class MuuriSlideShow
 {
+	get gridElement()
+	{
+		return this.gridContainer.querySelector(".grid");
+	}
 	constructor(options)
 	{
 		var dragCounter = 0;
 		var docElem = document.documentElement;
 
 		this.gridContainer = document.getElementById(options.ID);
-		const gridElement = this.gridContainer.querySelector(".grid");
+		const gridElement = this.gridElement;
 
 		options = {
 			layoutDuration: 400,
@@ -95,8 +99,8 @@ export class MuuriSlideShow
 
 		}
 
-		gridElement.addEventListener('click', (e)=> { this.OnClick(e); });
-		gridElement.addEventListener('dblclick', (e)=>{ this.OnDblClick(e); });
+		gridElement.addEventListener('click', (e) => { this.OnClick(e); });
+		gridElement.addEventListener('dblclick', (e) => { this.OnDblClick(e); });
 
 		gridElement.addEventListener("dragover", function (event)
 		{
@@ -125,6 +129,7 @@ export class MuuriSlideShow
 		this.ShowHideBasedOnZoomin();
 
 	}
+
 
 	ConsolidateMove()
 	{
@@ -194,7 +199,7 @@ export class MuuriSlideShow
 	{
 		function doAdd(txt)
 		{
-			this.DoAddText(txt);
+			this.AddUnknown(txt);
 		}
 
 		function doDelete(id, envelope)
@@ -280,6 +285,33 @@ export class MuuriSlideShow
 
 		if (this.IsInZoomMode())
 			doChooseSlide.call(this, e);
+	}
+
+	AddUnknown(txt)
+	{
+		try
+		{
+			this.AddType(...JSON.parse(txt));
+		}
+		catch(err)
+		{
+			this.DoAddText(txt);
+		}
+	}
+
+
+
+	ExportData(eContent)
+	{
+		const e = eContent.querySelector(".card-content").firstElementChild;
+
+		const ed = e._pele_export_data;
+
+		const rg = [
+			["text/plain", JSON.stringify(ed)]
+		];
+
+		return rg;
 	}
 
 	SlidePrevious()
@@ -530,7 +562,7 @@ function doSetIframeActiveState(e, fState)
 		if (eFrame)
 		{
 			console.debug("iFrame detected", eFrame, fState);
-			if(fState)
+			if (fState)
 			{
 				e.classList.add(KONST.pele_sleeping);
 				eFrame.setAttribute("sandbox", "");
