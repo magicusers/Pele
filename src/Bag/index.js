@@ -19,16 +19,6 @@ const initgame = _.once(function ()
 		return elementMatches(el, '.card-remove, .card-remove i');
 	}
 
-	function matchesSleepButton(el)
-	{
-		return elementMatches(el, '.card-op-sleep');
-	}
-
-	function matchesWakeButton(el)
-	{
-		return elementMatches(el, '.card-op-wake');
-	}
-
 	function extractContentElement(e)
 	{
 		return e.querySelector('.card-content').firstElementChild;
@@ -90,8 +80,6 @@ const initgame = _.once(function ()
 			const eTarget = event.target;
 
 			return matchesCloseButton(eTarget)
-				|| matchesSleepButton(eTarget)
-				|| matchesWakeButton(eTarget)
 				|| super.InDragCancelZone(item, event);
 		}
 
@@ -101,10 +89,6 @@ const initgame = _.once(function ()
 			const eTarget = event.target;
 			if (matchesCloseButton(eTarget))
 				this.RemoveItem(eTarget);
-			else if (matchesSleepButton(eTarget))
-				this.SetIframeActiveState(elementClosest(eTarget, ".item"), true);
-			else if (matchesWakeButton(eTarget))
-				this.SetIframeActiveState(elementClosest(eTarget, ".item"), false);
 			else if (elementMatches(eTarget, ".card-op-Previous"))
 				this.SlidePrevious();
 			else if (elementMatches(eTarget, ".card-op-Next"))

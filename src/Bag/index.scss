@@ -9,15 +9,31 @@ $magic-card-size:90%;
 
 @import '../muuri-square-slides';
 
+@mixin RivetBackground($size, $color, $backcolor) {
+	$half-size: #{$size/2};
+
+	background:
+		radial-gradient($color 20%, transparent 16%) 0 0,
+		radial-gradient($color 30%, transparent 16%) $half-size $half-size,
+		radial-gradient(rgba($color, .1) 15%, transparent 20%) 0 1px,
+		radial-gradient(rgba($color, .1) 30%, transparent 30%) $half-size calc( #{$half-size} + 1px);
+	background-color: $backcolor;
+	background-size: $size $size;
+}
+
+
+
 .item {
 
-		&.muuri-item-dragging {
-			pointer-events: none;
-		}
+	.dragging & {
+		pointer-events: none;
+	}
 
+	
 	.card {
-		background-color: mix($theme-color-primary, #888, 50%);
 
+		@include RivetBackground(0.216em, mix($theme-color-primary, $theme-color-back, 50% ), $theme-color-back );
+		
 		cursor: move;
 
 
@@ -40,13 +56,13 @@ $magic-card-size:90%;
 		.navigation-bar,
 		.card-operations {
 			display: none;
-			pointer-events: unset;
+			//pointer-events: unset;
 
 		}
 
 		&:hover .pele_deactive_overlay {
 			display: none;
-			pointer-events: unset;
+			//pointer-events: unset;
 		}
 
 	}
