@@ -249,6 +249,16 @@ class Pane
 			event.stopPropagation();
 		}, true);
 
+		function lock_inmotion()
+		{
+			manager.Container.classList.add("pele_dragging");
+			this.element.classList.add("pele_pane_inmotion");
+		}
+		function unlock_inmotion()
+		{
+			manager.Container.classList.remove("pele_dragging");
+			this.element.classList.remove("pele_pane_inmotion");
+		}
 
 		interact(this.element)
 			.resizable({
@@ -263,7 +273,7 @@ class Pane
 				listeners: {
 					start: event =>
 					{
-						this.element.classList.add("pele_pane_inmotion");
+						lock_inmotion.call(this);
 					},
 					move: (event) =>
 					{
@@ -274,8 +284,7 @@ class Pane
 					},
 					end: (event) =>
 					{
-						this.element.classList.remove("pele_pane_inmotion");
-
+						unlock_inmotion.call(this);
 						manager.ActionResize(Pane.FromElement(event.target).GetDataId(), this.PositionX, this.PositionY, event.rect.width, event.rect.height);
 					}
 				},
@@ -299,7 +308,7 @@ class Pane
 				listeners: {
 					start: event =>
 					{
-						this.element.classList.add("pele_pane_inmotion");
+						lock_inmotion.call(this);
 					},
 					move: (event) =>
 					{
@@ -310,7 +319,8 @@ class Pane
 					},
 					end: (event) =>
 					{
-						this.element.classList.remove("pele_pane_inmotion");
+						unlock_inmotion.call(this);
+
 						manager.ActionMoveTo(Pane.FromElement(event.target).GetDataId(), this.PositionX, this.PositionY);
 					}
 				},
@@ -436,7 +446,7 @@ class Pane
 			.draggable({
 				onstart: (event) =>
 				{
-					this.element.classList.add("pele_pane_inmotion");
+					lock_inmotion.call(this);
 
 					const rect = this.element.getBoundingClientRect();
 
@@ -456,7 +466,7 @@ class Pane
 				},
 				onend: (event) =>
 				{
-					this.element.classList.remove("pele_pane_inmotion");
+					unlock_inmotion.call(this);
 					manager.ActionRotate(Pane.FromElement(event.target).GetDataId(), getDragAngle.call(this, event));
 				},
 			})

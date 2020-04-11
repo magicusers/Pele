@@ -70,8 +70,9 @@ html {
 	background: $theme-color-back;
 }
 
-html.dragging body {
+.pele_dragging  {
 	user-select: none;
+	pointer-events: none;
 }
 
 html,
@@ -114,8 +115,19 @@ body {
 
 	.pele_content {
 		>iframe[src] {
-			pointer-events: unset;
+			pointer-events: auto;
+
+			.pele_dragging &
+			{
+				pointer-events: none;
+			}
 		}
+	}
+
+	.pele_deactive_overlay
+	{
+		display:none;
+
 	}
 }
 
@@ -231,7 +243,7 @@ body {
 			margin: 0;
 			padding: 0;
 
-			pointer-events: none;
+			pointer-events:none;
 		}
 
 		>.pele-responsive_image_container {
@@ -254,6 +266,25 @@ body {
 		}
 	}
 
+
+	.pele_deactive_overlay {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: 100%;
+		background: gray;
+		opacity: .25;
+		display: none;
+
+		&:hover{
+			pointer-events: none;
+			background-color: red;
+		}
+
+	}	
 }
 
 .pele_pane_active {
@@ -452,7 +483,7 @@ body {
 		pointer-events: none;
 
 		.card-ops {
-			pointer-events: initial;
+			pointer-events: auto;
 		}
 	}
 
