@@ -3,11 +3,11 @@ $theme-color-primary: rgb(214, 120, 3);
 $theme-color-fore: rgb(250, 212, 198);
 $theme-color-back: rgb(22, 2, 41);
 
-$magicmenu-height:1.618em;
+
 $magic-card-size:90%;
 
 
-@import '../muuri-square-slides';
+@import '../Thema/muuri-square-slides';
 
 @mixin RivetBackground($size, $color, $backcolor) {
 	$half-size: #{$size/2};

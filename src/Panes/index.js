@@ -966,6 +966,12 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 								this.ActionAddText(...data);
 								responder.Success();
 							break;
+
+						case "SetTitle":
+							const pane = Pane.FromElement(responder.frame.frameElement);
+							//console.log(cmd, pane, ...data);
+							pane.SetLabel(...data);
+							break;
 					}
 				});			
 			}

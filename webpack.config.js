@@ -4,6 +4,9 @@ const console = require('console');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyPlugin = require('copy-webpack-plugin');
+
+
 const os = require('os');
 
 var webpack = require('webpack');
@@ -92,6 +95,9 @@ function makelibconfig(argv)
 					filename: '[name].css',
 					chunkFilename: isDevelopment ? '[id].css' : '[id].[contenthash].css'
 				}),
+				new CopyPlugin([
+					{ from: path.resolve(__dirname, 'static'), to:path.resolve(__dirname, "dist")}
+				  ]),
 
 		],
 	}
@@ -164,8 +170,10 @@ function makehtmlconfig(argv)
 			["URL_VIDEOJS_CSS", null, "https://unpkg.com/video.js/dist/video-js.min.css"],
 			["URL_VIDEOJS_PLUGIN_YOUTUBE_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.6.1/Youtube.min.js"],			
 			["URL_INTERACTJS_LIBRARY", null, "https://cdn.jsdelivr.net/npm/interactjs@1.9.7/dist/interact.min.js"],		
+			["URL_OPENPGPJS_LIBRARY", "/src/static/openpgp/openpgp.js", "https://cdnjs.cloudflare.com/ajax/libs/openpgp/4.6.2/openpgp.min.js"],		
 		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(scripttag(isDevelopment ? e[1] : e[2])) }), {}),
 		...[
+			["URL_OPENPGPJS_WORKER_LIBRARY", "/src/static/openpgp/openpgp.worker.min.js", "https://cdnjs.cloudflare.com/ajax/libs/openpgp/4.6.2/openpgp.worker.min.js"],		
 		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(isDevelopment ? e[1] : e[2]) }), {}),
 
 		HOST_ATHEOS_LIBRARY: JSON.stringify(servicehost),
