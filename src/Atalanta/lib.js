@@ -1,4 +1,4 @@
-import { removeElement, extractTemplateElement, elementMatches, elementClosest } from '../BatLass/elementary';
+import { removeElement, extractTemplateElement, elementMatches, elementClosest, createElementFromHTML } from '../BatLass/elementary';
 
 
 /*
@@ -370,12 +370,6 @@ session.hub.on("cursor-update", function (msg)
 });
 */
 
-function createElementFromHTML(html)
-{
-	const e = document.createElement("div");
-	e.innerHTML = html;
-	return e.firstElementChild;
-}
 
 function User2Peer(u)
 {
@@ -866,37 +860,45 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 		// something real soon:
 		setTimeout(function ()
 		{
-			var element = event.target;
-			if (element == document.documentElement)
+			try
 			{
-				// For some reason clicking on <body> gives the <html> element here
-				element = document.body;
-			}
-			if (IgnoreElement(element))
-			{
-				//console.debug("ignore click", element);
-				const cursor =Cursor.getClient( Cursor.FromChild(element));
-				if (cursor)
+				var element = event.target;
+				if (element == document.documentElement)
 				{
-					console.debug("curse her", cursor);	
-					cursor.scrollTo();
+					// For some reason clicking on <body> gives the <html> element here
+					element = document.body;
+				}
+				if (IgnoreElement(element))
+				{
+					//console.debug("ignore click", element);
+					const cursor =Cursor.getClient( Cursor.FromChild(element));
+					if (cursor)
+					{
+						console.debug("curse her", cursor);	
+						cursor.scrollTo();
+					}
+
+					return;
 				}
 
-				return;
+				var offset = jqoffset(element);
+				var offsetX = event.pageX - offset.left;
+				var offsetY = event.pageY - offset.top;
+
+				patch_Click({
+					//element: location,
+					fullpath: ElementAddress(element),
+					offsetX: offsetX,
+					offsetY: offsetY,
+					W: offset.W,
+					H: offset.H
+				});
+			}
+			catch(err)
+			{
+				
 			}
 
-			var offset = jqoffset(element);
-			var offsetX = event.pageX - offset.left;
-			var offsetY = event.pageY - offset.top;
-
-			patch_Click({
-				//element: location,
-				fullpath: ElementAddress(element),
-				offsetX: offsetX,
-				offsetY: offsetY,
-				W: offset.W,
-				H: offset.H
-			});
 		});
 	}
 

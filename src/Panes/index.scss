@@ -6,6 +6,7 @@ $theme-color-back: rgb(2, 32, 1);
 $magicmenu-height:1.618em;
 
 $theme-resize-border-size: 0.5em;
+$theme-input-element-gap-size: 0.5em;
 
 body {
 	display: flex;
@@ -70,7 +71,7 @@ html {
 	background: $theme-color-back;
 }
 
-.pele_dragging  {
+.pele_dragging {
 	user-select: none;
 	pointer-events: none;
 }
@@ -102,7 +103,7 @@ body {
 	//height: 95%;
 	min-height: 85%;
 	overflow: auto;
-	flex:1;
+	flex: 1;
 
 	//min-height:calc(100% - #{$magicmenu-height});
 	//border: thin dotted $theme-color-primary;
@@ -117,16 +118,14 @@ body {
 		>iframe[src] {
 			pointer-events: auto;
 
-			.pele_dragging &
-			{
+			.pele_dragging & {
 				pointer-events: none;
 			}
 		}
 	}
 
-	.pele_deactive_overlay
-	{
-		display:none;
+	.pele_deactive_overlay {
+		display: none;
 
 	}
 }
@@ -243,7 +242,7 @@ body {
 			margin: 0;
 			padding: 0;
 
-			pointer-events:none;
+			pointer-events: none;
 		}
 
 		>.pele-responsive_image_container {
@@ -279,12 +278,12 @@ body {
 		opacity: .25;
 		display: none;
 
-		&:hover{
+		&:hover {
 			pointer-events: none;
 			background-color: red;
 		}
 
-	}	
+	}
 }
 
 .pele_pane_active {
@@ -428,28 +427,24 @@ body {
 	}
 }
 
-.card-label-controls
-{
+.card-label-controls {
 	display: none;
 	vertical-align: top;
 }
 
-.card-label
-{
+.card-label {
 	padding: 0 1em;
 	min-width: 2em;
 	display: inline-block;
-	max-height: 1em;	
+	max-height: 1em;
 
-	&:empty::before
-	{
+	&:empty::before {
 		content: "␢";
 		opacity: 0.3;
 	}
 
-	&.pele_dirty + .card-label-controls
-	{
-		display:unset;
+	&.pele_dirty+.card-label-controls {
+		display: unset;
 	}
 }
 
@@ -500,5 +495,18 @@ body {
 	.card-op-Unlock {
 		display: unset;
 	}
+
+}
+
+.Αφροδίτη_SettingsPage {
+	>header>h1:after {
+		content: "Settings";
+	}
+
+	label {
+		width: 100%;
+	}
+
+
 
 }

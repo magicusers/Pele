@@ -12,6 +12,12 @@ export function extractTemplateElement(id)
 	return e;
 }
 
+export function createElementFromHTML(html)
+{
+	const e = document.createElement("div");
+	e.innerHTML = html;
+	return e.firstElementChild;
+}
 
 export function elementMatches(element, selector)
 {

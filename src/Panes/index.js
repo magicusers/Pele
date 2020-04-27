@@ -5,13 +5,13 @@ import _ from 'lodash';
 import { KookData } from "../BatLass/KookMimeData";
 import { KeyBufferCommander } from '../BatLass/KeyBufferCommander';
 //import { arc } from 'd3';
-import { removeElement, extractTemplateElement, elementMatches, elementClosest } from '../BatLass/elementary';
+import { removeElement, extractTemplateElement, elementMatches, elementClosest, createElementFromHTML, populateFormData, extractFormData } from '../BatLass/elementary';
 import { createspellelement, despellify } from "../BatLass/Spell";
 
 import interact from 'interactjs';
 
 
-const MimeTypeForContainer = "application/x-magicusers-list";
+const MimeTypeForContainer = "application/x-magicusers-panes-list";
 const TypeofDragon = "text/x-magicusers-pane-data";
 
 const ePaneTemplate = extractTemplateElement("idTemplatePane");
@@ -326,9 +326,9 @@ class Pane
 				},
 				inertia: false,                    // start inertial movement if thrown
 				modifiers: [
-				  interact.modifiers.restrict({
-					restriction: 'parent'           // keep the drag coords within the element
-				  })
+					interact.modifiers.restrict({
+						restriction: 'parent'           // keep the drag coords within the element
+					})
 				],
 			})
 			;
@@ -345,6 +345,7 @@ class Pane
 				manager.ActionSetTransformLock(Pane.FromElement(event.target).GetDataId(), false);
 			});
 
+	/*
 		interact(this.element.querySelector(".card-op-sleep"))
 			.on("click", (event) =>
 			{
@@ -357,7 +358,7 @@ class Pane
 				manager.ActionSetSleepState(Pane.FromElement(event.target).GetDataId(), false);
 			})
 		);
-
+*/
 		this.LabelElement.addEventListener("input", (event) =>
 		{
 			this.LabelElement.classList.add("pele_dirty");
@@ -382,7 +383,7 @@ class Pane
 			manager.ActionSetLabel(Pane.FromElement(event.target).GetDataId(), this.LabelElement.innerHTML);
 			savedText = null;
 			this.LabelElement.classList.remove("pele_dirty");
-	}
+		}
 
 		interact(this.LabelElement)
 			.on("keydown", (event) =>
@@ -393,11 +394,11 @@ class Pane
 					case "Escape":
 						undoLabelChange.call(this);
 						break;
-	
+
 					case 'Enter':
 						submitLabelChange.call(this);
 						break;
-		
+
 					default:
 						return;
 				}
@@ -441,7 +442,7 @@ class Pane
 			});
 
 
-
+/*
 		interact(this.element.querySelector(".card-op-Rotate"))
 			.draggable({
 				onstart: (event) =>
@@ -475,7 +476,7 @@ class Pane
 				manager.ActionRotate(Pane.FromElement(event.target).GetDataId(), 0);
 				event.stopPropagation();
 			})
-
+*/
 		function getDragAngle(event)
 		{
 			var startAngle = this.PositionAngle;
@@ -609,10 +610,11 @@ class PaneManager
 
 		this.Container.addEventListener("click", onClick);
 
-		let lastDblClick=Date.now();
-		this.Container.addEventListener("dblclick", event=>{
-			if (event.target===this.Container)
-				lastDblClick=Date.now();
+		let lastDblClick = Date.now();
+		this.Container.addEventListener("dblclick", event =>
+		{
+			if (event.target === this.Container)
+				lastDblClick = Date.now();
 		});
 
 		//this.Add("yo baby");
@@ -630,7 +632,7 @@ class PaneManager
 		}
 		document.addEventListener("paste", event =>
 		{
-			const elapsed = Date.now()-lastDblClick;
+			const elapsed = Date.now() - lastDblClick;
 			if (elapsed > PERIOD_PASTE_URL_WAIT)
 			{
 				console.debug("Ignore paste");
@@ -640,7 +642,7 @@ class PaneManager
 				let data = (event.clipboardData || window.clipboardData).getData('text');
 				textdatadrop.call(this, event, data);
 			}
-			
+
 		});
 
 
@@ -652,17 +654,17 @@ class PaneManager
 		this.Container.addEventListener("drop", (event) =>
 		{
 			let data = event.dataTransfer.getData(TypeofDragon)
-			||event.dataTransfer.getData("text/html")
-			|| event.dataTransfer.getData("text/uri-list")
-			|| event.dataTransfer.getData("text");
+				|| event.dataTransfer.getData("text/html")
+				|| event.dataTransfer.getData("text/uri-list")
+				|| event.dataTransfer.getData("text");
 
 			if (data)
 			{
 				try
 				{
-					data = JSON.parse(data);					
+					data = JSON.parse(data);
 				}
-				catch(err)
+				catch (err)
 				{
 				}
 				textdatadrop.call(this, event, data);
@@ -753,7 +755,7 @@ class PaneManager
 		if (!_.isUndefined(dim) && dim.W && dim.H)
 		{
 			pane.Resize(dim.x, dim.y, dim.W, dim.H);
-			
+
 			if (!_.isUndefined(dim.a))
 				pane.Rotate(dim.a);
 
@@ -764,6 +766,9 @@ class PaneManager
 		{
 			pane.Resize((windowcount % nx) * gridwidth, (windowcount % ny) * gridwidth, r.width / 2, r.height / 2);
 		}
+
+		if (this.fSendFullsizeOnNew)
+			pane.SetZoomState(true);
 
 		this.BringToFront(pane);
 
@@ -820,6 +825,10 @@ class PaneManager
 		this.Action("DoDelete", ...arguments);
 	}
 
+	ActionSetFullsizeOnNew()
+	{
+		this.Action("DoSetFullsizeOnNew", ...arguments);
+	}
 
 	Action(cmd, ...args)
 	{
@@ -890,6 +899,11 @@ class PaneManager
 				pane.SetZoomState(...args);
 		}
 
+		function doSetFullsizeOnNew(fFull)
+		{
+			this.fSendFullsizeOnNew = fFull;
+		}
+
 		switch (cmd)
 		{
 			case "DoAdd": doAdd.apply(this, args); break;
@@ -903,6 +917,7 @@ class PaneManager
 			case "DoSetLabel": doSetLabel.apply(this, args); break;
 			case "DoSetZoomState": doSetZoomState.apply(this, args); break;
 			case "DoDelete": doDelete.apply(this, args); break;
+			case "DoSetFullsizeOnNew": doSetFullsizeOnNew.apply(this, args); break;
 		}
 	}
 
@@ -917,18 +932,29 @@ class PaneManager
 			return pane.PeleExportPromise();
 		});
 
-		return Promise.all(rgp);
+		return Promise.all(rgp).then(rg =>
+		{
+			return Promise.resolve([
+				rg, {
+					SendFullsizeOnNew: !!this.fSendFullsizeOnNew
+				}
+			]);
+		});
 
 	}
 
 
-	Import(rg)
+	Import(rgp)
 	{
-		console.debug("import slides", rg);
+		console.debug("import slides", rgp);
+
+		const [rg, settings] = rgp;
+
+		this.ActionSetFullsizeOnNew(settings.SendFullsizeOnNew);
 
 		rg.forEach(([type, txt, dim]) =>
 		{
-			const [y,x] = despellify(type, txt);
+			const [y, x] = despellify(type, txt);
 			this.ActionAddText(x, y, dim);
 		});
 	}
@@ -944,7 +970,125 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 			Title: "Magic Panes"
 			, ReloadDocumentOnReset: true
 			, Container: document.getElementById("idMagicUsersContainer")
+			, Manifest:
+			{
+				Description: "Build a custom Collaborative Virtual Computer for work or play. Drop other Magic Apps here and the resulting page is itself a shareable desktop App!"
+			}
+			, CustomMenu: [
+				["Settings…", onSettings],
+			]
 		});
+
+		const self = this;
+
+
+		const templateFormSettings = `
+	<form>
+
+	<div>
+		<label for="number">Number</label>
+		<input type="number" name="number" id="number" required>
+	</div>
+
+	<div>
+		<label for="float">Number (no decimals)</label>
+		<input type="number" step="any" name="integer" id="integer" pattern="^(?:[-+]?[0-9]*)$" required>
+	</div>
+
+	<div>
+		<label for="numberminmax">Number with Min and Max <span class="pattern">Must be between 2 and 7</span></label>
+		<input type="number" min="2" max="7" name="numberminmax" id="numberminmax" required>
+	</div>
+
+
+	<div>
+		<strong>Radio Buttons</strong>
+		<label class="label-normal">
+			<input type="radio" name="radio" id="radio-1" required>
+			<span>Yes</span>
+		</label>
+		<label class="label-normal">
+			<input type="radio" name="radio" id="radio-2" required>
+			<span>No</span>
+		</label>
+	</div>
+
+	<div>
+		<strong>Checkboxes</strong>
+		<label class="label-normal">
+			<input type="checkbox" name="checkbox-1" id="checkbox-1" required>
+			<span>Wolverine (must be checked)</span>
+		</label>
+		<label class="label-normal">
+			<input type="checkbox" name="checkbox-2" id="checkbox-2">
+			<span>Storm</span>
+		</label>
+		<label class="label-normal">
+			<input type="checkbox" name="checkbox-3" id="checkbox-3">
+			<span>Cyclops</span>
+		</label>
+		<label class="label-normal">
+			<input type="checkbox" name="checkbox-4" id="checkbox-4">
+			<span>Gambit</span>
+		</label>
+	</div>
+
+	<button type="submit">Submit</button>
+	</form>
+	`;
+
+		class SettingsPage extends Aθεος.Αφροδίτη.TitleDialog
+		{
+			constructor(world)
+			{
+				const formElement = createElementFromHTML(`
+				<form>
+		
+				<div>
+					<label class="label-normal">
+						<input type="checkbox" name="fullsizeOnNew">
+						<span>Fullscreen windows on [NEW]</span>
+					</label>
+				</div>
+			
+				<button type="submit">Submit</button>
+				</form>				
+				`);
+				super({
+					MenuList: [
+					//	[settingsBox],
+					]
+					, ...world.options
+					, ClickAnyWhereToHide: false
+					, ShowCloseButton: true
+					, Form: formElement
+				});
+				this.elContainer.classList.add("Αφροδίτη_SettingsPage");
+				this.world = world;
+			}
+
+			get CurrentFormData()
+			{
+				return {
+					"fullsizeOnNew": this.world.paneManager.fSendFullsizeOnNew
+				};
+			}
+
+			OnSubmitData(data, oldData)
+			{
+				this.world.paneManager.ActionSetFullsizeOnNew(data.fullsizeOnNew);
+				super.OnSubmitData(data, oldData);
+			}
+		}
+
+		const dgSettings = new SettingsPage(this);
+
+		function onSettings()
+		{
+			dgSettings.Show();
+		}
+
+
 
 		class MyPaneManager extends PaneManager
 		{
@@ -957,14 +1101,14 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 					this.original_Action(...args);
 				}.bind(this));
 
-	
-				Aθεος.Freyja.AddHandler((responder, cmd, ...data)=>
+
+				Aθεος.Freyja.AddHandler((responder, cmd, ...data) =>
 				{
 					switch (cmd)
 					{
 						case "OpenNewInstance":
-								this.ActionAddText(...data);
-								responder.Success();
+							this.ActionAddText(...data);
+							responder.Success();
 							break;
 
 						case "SetTitle":
@@ -973,7 +1117,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedContainerWorld
 							pane.SetLabel(...data);
 							break;
 					}
-				});			
+				});
 			}
 
 			Action()
