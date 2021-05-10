@@ -51,7 +51,7 @@
 		"d3": "^5.15.0",
 		"express": "^4.17.1",
 		"file-loader": "^5.0.2",
-		"lodash": "^4.17.15",
+		"lodash": "^4.17.21",
 		"nodemon": "^2.0.2",
 		"seedrandom": "^3.0.5",
 		"socket.io": "^2.3.0"
