@@ -66,10 +66,10 @@ function getSubpagesInFolder(folderpath, re_basefile)
 }
 
 
-function makelibconfig(argv)
+function makelibconfig(env, argv)
 {
 	const isDevelopment = (argv.mode === 'development');
-	const comm = makecommonconfig(argv);
+	const comm = makecommonconfig(env, argv);
 
 	const libentryfiles = getAllMatchingFiles('src', /^(?!index).*\.js$/i).reduce((o, page) => ({ ...o, [page.replace("src/", "").replace(".js", "")]: "./" + page }), {});
 	console.log("libentryfiles", libentryfiles);
@@ -95,9 +95,14 @@ function makelibconfig(argv)
 					filename: '[name].css',
 					chunkFilename: isDevelopment ? '[id].css' : '[id].[contenthash].css'
 				}),
-				new CopyPlugin([
-					{ from: path.resolve(__dirname, 'static'), to:path.resolve(__dirname, "dist")}
-				  ]),
+				new CopyPlugin({
+					patterns: [
+						{
+							from: path.resolve(__dirname, 'static'),
+							to: path.resolve(__dirname, "dist")
+						}
+					]
+				}),
 
 		],
 	}
@@ -121,10 +126,22 @@ function getlocalip()
 	return "localhost";
 }
 
-function makehtmlconfig(argv)
+
+function removeSurroundingChar(s, ch)
+{
+	if (s && s.indexOf(ch) >= 0 && s.lastIndexOf(ch) >= 1)
+		return s.slice(1, -1);
+	return s;
+}
+function removeSurroudingQuotes(s)
+{
+	return removeSurroundingChar(s, '"') || removeSurroundingChar(s, "'");
+}
+
+function makehtmlconfig(env, argv)
 {
 	const isDevelopment = (argv.mode === 'development');
-	const comm = makecommonconfig(argv);
+	const comm = makecommonconfig(env, argv);
 
 	const htmlfiles = getSubpagesInFolder('src', /.*\.html$/i);
 	const entryfiles = getAllSubfolders('src').reduce((rg, folder)=>rg.concat(getAllMatchingFiles(folder, /\.js$/i)), []).reduce((o, page) => ({ ...o, [page.replace("src/", "").replace(".js", "")]: "./" + page }), {});
@@ -155,7 +172,7 @@ function makehtmlconfig(argv)
 
 	}
 
-	const servicehost = argv.service_host ? argv.service_host : (os.hostname() + ":3000");
+	const servicehost = env.service_host ? env.service_host : (os.hostname() + ":3000");
 	//const servicehost = argv.service_host ? argv.service_host : (getlocalip() + ":3000");
 	console.log("Service Host:", servicehost);
 
@@ -176,7 +193,7 @@ function makehtmlconfig(argv)
 			["URL_OPENPGPJS_WORKER_LIBRARY", "/src/static/openpgp/openpgp.worker.min.js", "https://cdnjs.cloudflare.com/ajax/libs/openpgp/4.6.2/openpgp.worker.min.js"],		
 		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(isDevelopment ? e[1] : e[2]) }), {}),
 
-		HOST_ATHEOS_LIBRARY: JSON.stringify(servicehost),
+		HOST_ATHEOS_LIBRARY: JSON.stringify(removeSurroudingQuotes(servicehost)),
 	}
 		;
 
@@ -185,6 +202,12 @@ function makehtmlconfig(argv)
 	const config =
 	{
 		...comm,
+		devServer: {
+			port: 5555,
+			host: '0.0.0.0',
+			https: !!(process.env.NODE_USE_SSL)
+		},
+
 		entry: {...themefiles, ...entryfiles},
 		output: {
 			path: path.resolve(__dirname, "dist")
@@ -218,7 +241,7 @@ function NothingPlugin()
 	this.apply = function () { };
 }
 
-function makecommonconfig(argv)
+function makecommonconfig(env, argv)
 {
 	const isDevelopment = (argv.mode === 'development');
 
@@ -240,11 +263,6 @@ function makecommonconfig(argv)
 					"interact":"interactjs"
 				})
 		},
-		devServer: {
-			port: 5555,
-			host: '0.0.0.0',
-			https: !!(process.env.NODE_USE_SSL)
-		},
 		resolve: {
 			extensions: ['.js', '.scss'],
 			alias: {
@@ -265,7 +283,7 @@ function makecommonconfig(argv)
 				},
 				{
 					test: /\.module\.s(a|c)ss$/i,
-					loader: [
+					use: [
 						/*isDevelopment ? 'style-loader' : */MiniCssExtractPlugin.loader,
 						{
 							loader: 'css-loader',
@@ -292,7 +310,7 @@ function makecommonconfig(argv)
 				{
 					test: /\.s(a|c)ss$/i,
 					exclude: /\.module.(s(a|c)ss)$/i,
-					loader: [
+					use: [
 						/*isDevelopment ? 'style-loader' :*/ MiniCssExtractPlugin.loader,
 						{
 							loader: 'css-loader',
@@ -360,5 +378,5 @@ module.exports = (env, argv) =>
 	return config;
 */
 
-	return [makelibconfig(argv), makehtmlconfig(argv)];
+	return [makelibconfig(env, argv), makehtmlconfig(env, argv)];
 }

@@ -3,7 +3,7 @@ const presets = [
       "@babel/preset-env",
       {
           "targets": {
-              "browsers": "last 2 versions, > 5%",
+              "browsers": "cover 90%, > 1%",
               "node": "current"
           },
       },
