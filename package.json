@@ -48,7 +48,7 @@
 	},
 	"dependencies": {
 		"@babel/runtime": "^7.7.7",
-		"d3": "^5.15.0",
+		"d3": "^7.6.1",
 		"express": "^4.17.1",
 		"file-loader": "^5.0.2",
 		"lodash": "^4.17.15",
