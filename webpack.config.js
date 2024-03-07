@@ -126,16 +126,9 @@ function getlocalip()
 	return "localhost";
 }
 
-
-function removeSurroundingChar(s, ch)
-{
-	if (s && s.indexOf(ch) >= 0 && s.lastIndexOf(ch) >= 1)
-		return s.slice(1, -1);
-	return s;
-}
 function removeSurroudingQuotes(s)
 {
-	return removeSurroundingChar(s, '"') || removeSurroundingChar(s, "'");
+	return s.replace(/^["'](.+(?=["']$))["']$/, '$1');
 }
 
 function makehtmlconfig(env, argv)
