@@ -1,18 +1,11 @@
-<!doctype html>
-<html>
-
-<head>
-	<title>Table Edit</title>
-
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
-
-	<style>
-		body,
+<!doctype html><html><head><title>Table Edit</title><script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script><style>body,
 		html {
 			margin: 0;
 			height: 100%;
 			width: 100%;
+			color:black;
+			background-color: peachpuff;
+
 		}
 
 		html {
@@ -53,36 +46,16 @@
 
 		table tr.active {
 			background: #ffc;
-		}
-	</style>
-
-	<style>
-		.flex_equispaced_vertical_stack {
+		}</style><style>.flex_equispaced_vertical_stack {
 			display: flex;
 			flex-direction: column;
 		}
 
 		.flex_equispaced_vertical_stack>* {
 			flex: 1;
-		}
-
-	</style>
-
-</head>
-
-<body class="flex_equispaced_vertical_stack">
-	<script src="../table-editor.js"></script>
-	<script src="//iris.magicusers.com/atheos/afrodite.js"></script>
-	<link rel="stylesheet" href="//iris.magicusers.com/atheos/afrodite.css">
-	<style>
-		.Aφρός_Αφροδίτη_window_BannerPane {
-			top: 0;
-			opacity: 66%;
-		}
-	</style>
-
-	<style>
-		#tableContainer {
+		}</style><script defer="defer" src="../Histogram/index.js?ac5663221bef7dfab1b8"></script></head><body class="flex_equispaced_vertical_stack"><script src="../table-editor.js"></script><script src="//iris.magicusers.com/atheos/afrodite.js"></script><link rel="stylesheet" href="//iris.magicusers.com/atheos/themes/app.dark.css"><style>#idMagicUsersContainer {
+			max-height:1.1618em;
+		}</style><style>#tableContainer {
 			position: relative;
 			border: red thin solid;
 		}
@@ -117,46 +90,4 @@
 		tr.pele_dragover
 		{
 			border-top:hotpink solid thick;
-		}
-
-	</style>
-
-	<div id="output" class="flex_equispaced_vertical_stack">
-	</div>
-
-	<table id="cooltable">
-		<thead>
-			<tr>
-				<th>Category</th>
-				<th>Size</th>
-				<th colspan="99">Color</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr draggable="true">
-				<td>
-					<input name="category" placeholder="nom" type="text" autocomplete="off" />
-				</td>
-				<td>
-					<input name="size" placeholder="0" type="number" autocomplete="off" />
-				</td>
-				<td>
-					<input name="color" type="color" required="required" value="#ff0000" autocomplete="off" />
-				</td>
-				<td>
-					<span data-remove>×</span>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-
-
-
-	<script>
-
-
-	</script>
-
-<script type="text/javascript" src="../Histogram/index.js?2072f516d5c25bcb258e"></script></body>
-
-</html>
+		}</style><div id="idMagicUsersContainer" title="Tap for more online juice"></div><div id="output" class="flex_equispaced_vertical_stack"></div><table id="cooltable"><thead><tr><th>Category</th><th>Size</th><th colspan="99">Color</th></tr></thead><tbody><tr draggable="true"><td><input name="category" placeholder="nom" autocomplete="off"/></td><td><input name="size" placeholder="0" type="number" autocomplete="off"/></td><td><input name="color" type="color" required="required" value="#ff0000" autocomplete="off"/></td><td><span data-remove>×</span></td></tr></tbody></table><script></script></body></html>

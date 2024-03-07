@@ -1,0 +1,1 @@
+!function(){"use strict";Aθεος.Freyja.AddHandler((function(r,e){for(var a,n=arguments.length,c=new Array(n>2?n-2:0),o=2;o<n;o++)c[o-2]=arguments[o];(a=console).debug.apply(a,["Freyja IPC",e].concat(c)),"Mediaplayer.Control.Directive"===e&&Aθεος.Freyja.Children().forEach((function(r){var a;return(a=Aθεος.Freyja).QueryChild.apply(a,[r,e].concat(c))}))}))}();
