@@ -162,7 +162,7 @@ class GameControl extends Aθεος.Αφροδίτη.SharedWorldControl
 							.attr("data-uniqueid", ()=> ++idForOutput)
 							.on('click', function(event){
 								patched_click(d3.select(this).attr("data-uniqueid"));
-								d3.event.stopPropagation();
+								event.stopPropagation();
 							})
 						, update => update.transition()
 							.text(d => d.category)

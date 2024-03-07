@@ -198,7 +198,7 @@ function makehtmlconfig(env, argv)
 		devServer: {
 			port: 5555,
 			host: '0.0.0.0',
-			https: !!(process.env.NODE_USE_SSL)
+			//https: !!(process.env.NODE_USE_SSL)
 		},
 
 		entry: {...themefiles, ...entryfiles},
