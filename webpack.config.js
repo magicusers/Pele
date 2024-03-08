@@ -171,15 +171,15 @@ function makehtmlconfig(env, argv)
 
 	const rgConstants = {
 		...[
-			["URL_D3_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/d3/5.14.2/d3.min.js"],
-			["URL_LODASH_LIBRARY", null, "https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"],
-			["URL_MUURI_LIBRARY", null, "https://unpkg.com/muuri@0.8.0/dist/muuri.min.js"],
-			["URL_WEB_ANIMATIONS_LIBRARY", null, "https://unpkg.com/web-animations-js@2.3.2/web-animations.min.js"],
+			["URL_D3_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"],
+			["URL_LODASH_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"],
+			["URL_MUURI_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/muuri/0.9.5/muuri.min.js"],
+			["URL_WEB_ANIMATIONS_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/web-animations/2.3.2/web-animations.min.js"],
 			["URL_WEB_ANIMATECSS_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css"],
 			["URL_VIDEOJS_LIBRARY", null, "https://unpkg.com/video.js/dist/video.min.js"],
 			["URL_VIDEOJS_CSS", null, "https://unpkg.com/video.js/dist/video-js.min.css"],
 			["URL_VIDEOJS_PLUGIN_YOUTUBE_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.6.1/Youtube.min.js"],			
-			["URL_INTERACTJS_LIBRARY", null, "https://cdn.jsdelivr.net/npm/interactjs@1.9.7/dist/interact.min.js"],		
+			["URL_INTERACTJS_LIBRARY", null, "https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.26/interact.min.js"],		
 			["URL_OPENPGPJS_LIBRARY", "/src/static/openpgp/openpgp.js", "https://cdnjs.cloudflare.com/ajax/libs/openpgp/4.6.2/openpgp.min.js"],		
 		].reduce((o, e) => ({ ...o, [e[0]]: JSON.stringify(scripttag(isDevelopment ? e[1] : e[2])) }), {}),
 		...[
