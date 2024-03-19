@@ -85,14 +85,14 @@ function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y)
 	const s2_x = p3_x - p2_x;
 	const s2_y = p3_y - p2_y;
 
-    
-    const s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
-    const t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
 
-    if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
-    {
-        return [p0_x + (t * s1_x), p0_y + (t * s1_y)];
-    }
+	const s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+	const t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+	if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+	{
+		return [p0_x + (t * s1_x), p0_y + (t * s1_y)];
+	}
 }
 
 function ElementAddress(el)
@@ -409,7 +409,7 @@ export class Cursor
 		this.element.classList.add(this.elementClass);
 		this.element.setAttribute("data-client-id", clientId);
 		//		this.updatePeer(peers.getPeer(clientId));
-		this.updatePeer(User2Peer(world.coven.User(clientId)));
+		this.updatePeer();
 
 		this.lastTop = this.lastLeft = null;
 
@@ -424,14 +424,14 @@ export class Cursor
 
 	scrollTo()
 	{
-		console.debug("scrollTo", 	this.lastTop, this.lastLeft);
+		console.debug("scrollTo", this.lastTop, this.lastLeft);
 		//document.querySelector(".interactContainer").scrollTo(this.lastLeft, this.lastTop);
 
 		const container = this.element.parentElement;
 
 		const r = container.getBoundingClientRect();
-		
-		container.scrollTo(this.lastLeft - r.width/2, this.lastTop - r.height/2);
+
+		container.scrollTo(this.lastLeft - r.width / 2, this.lastTop - r.height / 2);
 	}
 
 	Keepalive()
@@ -451,8 +451,9 @@ export class Cursor
 	// user typing.  This should be more than MIN_KEYDOWN_TIME:
 	//    KEYDOWN_WAIT_TIME: 2000,
 
-	updatePeer(peer)
+	updatePeer()
 	{
+		const peer = User2Peer(world.coven.User(this.clientId));
 		// FIXME: can I use peer.setElement()?
 		this.element.style.color = peer.color;
 
@@ -563,22 +564,22 @@ export class Cursor
 
 		const wTop = container.scrollTop;// window.scrollY;		
 		const height = container.clientHeight;// document.documentElement.clientHeight;
-		
+
 		//console.debug(top, left, wTop, height, r, container);
 
-		top -= r.top ;
+		top -= r.top;
 		left -= r.left;
 
 
 		const rC = this.element.getBoundingClientRect();
 
 		const x0 = container.scrollLeft + rC.width;
-		const y0 = container.scrollTop+ rC.height;
-		const x1 = x0 + container.clientWidth  - 2*rC.width;
-		const y1 = y0 + container.clientHeight - 2*rC.height;
+		const y0 = container.scrollTop + rC.height;
+		const x1 = x0 + container.clientWidth - 2 * rC.width;
+		const y1 = y0 + container.clientHeight - 2 * rC.height;
 
-		const cx = (x0 + x1)/2;
-		const cy = (y0+y1)/2;
+		const cx = (x0 + x1) / 2;
+		const cy = (y0 + y1) / 2;
 
 		const intersectionTop = get_line_intersection(x0, y0, x1, y0, left, top, cx, cy);
 		const intersectionBottom = get_line_intersection(x0, y1, x1, y1, left, top, cx, cy);
@@ -586,18 +587,18 @@ export class Cursor
 		const intersectionRight = get_line_intersection(x1, y0, x1, y1, left, top, cx, cy);
 
 		//console.debug("intersection:", intersectionLeft, intersectionTop, intersectionRight, intersectionBottom);
-		const inter = intersectionLeft|| intersectionTop|| intersectionRight|| intersectionBottom;
+		const inter = intersectionLeft || intersectionTop || intersectionRight || intersectionBottom;
 
 		if (inter)
 		{
 			left = inter[0];
 			top = inter[1];
 
-			const angle = -Math.atan2(cx-left, cy-top);
+			const angle = -Math.atan2(cx - left, cy - top);
 			//console.debug("angle:", angle);
-			
-			this.element.style.transform = "rotate("+angle+"rad)";
-			this.element.querySelector(".Aταλάντη-cursor-container").style.transform = "rotate("+ -angle+"rad)";
+
+			this.element.style.transform = "rotate(" + angle + "rad)";
+			this.element.querySelector(".Aταλάντη-cursor-container").style.transform = "rotate(" + -angle + "rad)";
 			this.setClass("Aταλάντη-scrolled-outofrange");
 		}
 		else
@@ -606,24 +607,24 @@ export class Cursor
 			this.element.querySelector(".Aταλάντη-cursor-container").style.transform = null;
 			this.setClass("Aταλάντη-scrolled-normal");
 		}
-/*
-	
-		if (top < wTop)
-		{
-			// FIXME: this is a totally arbitrary number, but is meant to be big enough
-			// to keep the cursor name from being off the top of the screen.
-			top = 25;
-			this.setClass("Aταλάντη-scrolled-above");
-		} else if (top > wTop + height - CURSOR_HEIGHT)
-		{
-			top = height - CURSOR_HEIGHT - 5;
-			this.setClass("Aταλάντη-scrolled-below");
-		} else
-		{
-			this.setClass("Aταλάντη-scrolled-normal");
-		}
-*/
-		
+		/*
+			
+				if (top < wTop)
+				{
+					// FIXME: this is a totally arbitrary number, but is meant to be big enough
+					// to keep the cursor name from being off the top of the screen.
+					top = 25;
+					this.setClass("Aταλάντη-scrolled-above");
+				} else if (top > wTop + height - CURSOR_HEIGHT)
+				{
+					top = height - CURSOR_HEIGHT - 5;
+					this.setClass("Aταλάντη-scrolled-below");
+				} else
+				{
+					this.setClass("Aταλάντη-scrolled-normal");
+				}
+		*/
+
 		this.element.style.top = top + 'px';
 		this.element.style.left = left + 'px';
 	}
@@ -717,9 +718,18 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 		//console.debug(envelope, msg);
 		if (envelope)
 		{
-			const cursor = Cursor.getClient(envelope.sender);
-			if (cursor)
-				cursor.updatePosition(msg);
+			try
+			{
+				const cursor = Cursor.getClient(envelope.sender);
+				if (cursor)
+					cursor.updatePosition(msg);
+			}
+			catch (e)
+			{
+				console.warn("mousemove", e);
+			}
+
+
 		}
 	});
 
@@ -731,6 +741,14 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 			if (cursor)
 				cursor.Keepalive(msg);
 		}
+	});
+
+	world.addEventListener("UpdateUsers", ()=>{
+		Cursor.forEach(cursor =>
+			{
+				if (cursor)
+					cursor.updatePeer();
+			});
 	});
 
 	setInterval(function ()
@@ -756,13 +774,15 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 		}
 	});
 
-	Cursor.Container.addEventListener("scroll", _.debounce(event=>{
+	Cursor.Container.addEventListener("scroll", _.debounce(event =>
+	{
 		const t = event.target;
 		console.debug("scroll", t.scrollLeft, t.scrollTop, t);
 
-		Cursor.forEach((c) =>{
+		Cursor.forEach((c) =>
+		{
 			c.refresh();
-		  });
+		});
 
 		//patch_Scroll(t.scrollLeft, t.scrollTop);
 	}, SCROLL_UPDATE_INTERVAL));
@@ -821,32 +841,40 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 	{
 
 		console.debug(envelope, pos);
-		if (envelope)
+		try
 		{
-
-			// When the click is calculated isn't always the same as how the
-			// last cursor update was calculated, so we force the cursor to
-			// the last location during a click:
-			const cursor = Cursor.getClient(envelope.sender);
-			if (cursor)
+			if (envelope)
 			{
-				cursor.updatePosition(pos);
 
-				//var target = FindElement(pos.element);
-				const target = FindElementAddress(pos.fullpath);
-				//console.assert(haha === target);
+				// When the click is calculated isn't always the same as how the
+				// last cursor update was calculated, so we force the cursor to
+				// the last location during a click:
+				const cursor = Cursor.getClient(envelope.sender);
+				if (cursor)
+				{
+					cursor.updatePosition(pos);
 
-				var offset = jqoffset(target);
-				var top = offset.top + (pos.offsetY * offset.H / pos.H);
-				var left = offset.left + (pos.offsetX * offset.W / pos.W);
-				displayClick({
-					top: top,
-					left: left,
-					W: offset.W,
-					H: offset.H
-				}, cursor.peer.color);
+					//var target = FindElement(pos.element);
+					const target = FindElementAddress(pos.fullpath);
+					//console.assert(haha === target);
+
+					var offset = jqoffset(target);
+					var top = offset.top + (pos.offsetY * offset.H / pos.H);
+					var left = offset.left + (pos.offsetX * offset.W / pos.W);
+					displayClick({
+						top: top,
+						left: left,
+						W: offset.W,
+						H: offset.H
+					}, cursor.peer.color);
+				}
 			}
 		}
+		catch (e)
+		{
+			console.warn("click", e);
+		}
+
 	}
 	);
 
@@ -871,10 +899,10 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 				if (IgnoreElement(element))
 				{
 					//console.debug("ignore click", element);
-					const cursor =Cursor.getClient( Cursor.FromChild(element));
+					const cursor = Cursor.getClient(Cursor.FromChild(element));
 					if (cursor)
 					{
-						console.debug("curse her", cursor);	
+						console.debug("curse her", cursor);
 						cursor.scrollTo();
 					}
 
@@ -894,9 +922,9 @@ Promise.all([Aθεος.Αφροδίτη.UserWorldCreated(), Aθεος.Aφαία.
 					H: offset.H
 				});
 			}
-			catch(err)
+			catch (err)
 			{
-				
+
 			}
 
 		});

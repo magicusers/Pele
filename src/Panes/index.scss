@@ -164,19 +164,18 @@ body {
 		z-index: -1;
 		opacity: 0.1111;
 
+		width: 100%;
+		height: 100%;
+
+
 		&.pele_resize_border_top,
 		&.pele_resize_border_bottom {
-			width: calc(100% + #{$theme-resize-border-size * 2 });
 			height: #{$theme-resize-border-size};
-			left: -#{$theme-resize-border-size};
-
 		}
 
 		&.pele_resize_border_left,
 		&.pele_resize_border_right {
 			width: #{$theme-resize-border-size};
-			height: calc(100% + #{$theme-resize-border-size * 2});
-			top: -#{$theme-resize-border-size};
 		}
 
 		&.pele_resize_border_top {
@@ -185,6 +184,7 @@ body {
 
 		&.pele_resize_border_bottom {
 			bottom:-#{$theme-resize-border-size};
+
 		}
 
 		&.pele_resize_border_left {
